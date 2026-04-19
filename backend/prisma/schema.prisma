@@ -9,6 +9,7 @@ datasource db {
 
 model Tenants {
   id Int @id @default(autoincrement())
+  name String @unique
   created_at DateTime @default(now())
   users User[]
 }
@@ -16,10 +17,11 @@ model Tenants {
 model User {
   id Int @id @default(autoincrement())
   created_at DateTime @default(now())
-  name String?
-  password String?
-  tenant_id Int?
-  tenant Tenants? @relation(fields: [tenant_id], references: [id])
+  name String @unique
+  password String
+  access_level String
+  tenant_id Int
+  tenant Tenants @relation(fields: [tenant_id], references: [id])
 }
 
 model Produto {

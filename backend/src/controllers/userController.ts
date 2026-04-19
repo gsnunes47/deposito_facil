@@ -12,7 +12,7 @@ export function getUserById(request: Request, response: Response) {
     response.send([])
 }
 
-export function createFirstUser(request: Request, response: Response) {
+export function createUser(request: Request, response: Response) {
 
     console.log(request.body)
 
