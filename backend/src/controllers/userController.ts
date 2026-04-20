@@ -5,7 +5,7 @@ export function getUsers(request: Request, response: Response) {
 
     const users = prisma.user.findMany()
 
-    response.send([])
+    response.send(users)
 }
 
 export function getUserById(request: Request, response: Response) {

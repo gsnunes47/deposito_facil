@@ -14,12 +14,15 @@ export async function login(request: Request, response: Response) {
 
     const auth = await authDomain.login(userData)
 
+    console.log('auth: ', auth)
+
     if (auth.code != 200 || !auth.data) {
+        console.log("cagada")
         return response.status(auth.code).json(auth)
     }
 
     const token = generateToken({ userId: auth.data.id, tenantId: auth.data.tenant_id })
-
+    
     response
         .cookie('token', token, {
             httpOnly: true,    // JS do browser não consegue ler

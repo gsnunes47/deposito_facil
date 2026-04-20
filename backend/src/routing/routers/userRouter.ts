@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { type NextFunction, type Request, type Response } from 'express'
-import * as controllers from "../controllers/userController.js";
+import * as controllers from "../../controllers/userController.js";
 
 const router = Router()
 
