@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import prisma from "../repositories/db.js";
 import authDomain from "../domains/authDomain.js";
+import { generateToken } from "../helpers/jwtHelper.js";
 
 
 export async function login(request: Request, response: Response) {
@@ -13,11 +14,19 @@ export async function login(request: Request, response: Response) {
 
     const auth = await authDomain.login(userData)
 
-    if (auth.code != 200) {
+    if (auth.code != 200 || !auth.data) {
         return response.status(auth.code).json(auth)
     }
 
-    // const token = chamar função de token
+    const token = generateToken({ userId: auth.data.id, tenantId: auth.data.tenant_id })
 
-    response.status(200).json({})
+    response
+        .cookie('token', token, {
+            httpOnly: true,    // JS do browser não consegue ler
+            secure: process.env.NODE_ENV === 'production', // HTTPS only em prod
+            sameSite: 'strict',
+            maxAge: 2 * 60 * 60 * 1000 // 2h em ms
+        })
+        .status(200)
+        .json({ message: 'Login realizado com sucesso' })
 }
