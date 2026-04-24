@@ -9,7 +9,7 @@ export function generateToken(payload: { userId: number; tenantId: number }) {
 export function verifyToken(token: string) {
     try {
         const decoded = jwt.verify(token, SECRET)
-        return { valid: true, decoded }
+        return { valid: true, userId: (decoded as any).userId, tenantId: (decoded as any).tenantId}
     } catch (error) {
         return { valid: false, error }
     }
