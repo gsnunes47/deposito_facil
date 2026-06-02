@@ -12,11 +12,11 @@ class authMiddleware {
         } else {
             
             const decoded = jwtHelper.verifyToken(token)
-
+            
             if (!decoded) {
                 response.status(401).json({ message: 'Token inválido' })
             } else {
-                request.user = decoded
+                request.user = decoded;
                 next()
             }
 
