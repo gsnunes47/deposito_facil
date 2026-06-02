@@ -1,29 +1,29 @@
-    import * as jwtHelper from "../../helpers/jwtHelper.js";
-    import { type NextFunction, type Request, type Response } from 'express'
+import * as jwtHelper from "../../helpers/jwtHelper.js";
+import { type NextFunction, type Request, type Response } from 'express'
 
-    class authMiddleware {
+class authMiddleware {
 
-        static verify(request: Request, response: Response, next: NextFunction) {
+    static verify(request: Request, response: Response, next: NextFunction) {
 
-            const token = request.cookies.token
+        const token = request.cookies.token
 
-            if (!token) {
-                response.status(401).json({ message: 'Não autorizado' })
+        if (!token) {
+            response.status(401).json({ message: 'Não autorizado' })
+        } else {
+            
+            const decoded = jwtHelper.verifyToken(token)
+
+            if (!decoded) {
+                response.status(401).json({ message: 'Token inválido' })
             } else {
-                
-                const decoded = jwtHelper.verifyToken(token)
-
-                if (!decoded) {
-                    response.status(401).json({ message: 'Token inválido' })
-                } else {
-                    request.user = decoded
-                    next()
-                }
-
+                request.user = decoded
+                next()
             }
 
         }
 
     }
 
-    export default authMiddleware
+}
+
+export default authMiddleware

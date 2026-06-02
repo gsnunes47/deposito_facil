@@ -17,11 +17,10 @@ export async function login(request: Request, response: Response) {
     console.log('auth: ', auth)
 
     if (auth.code != 200 || !auth.data) {
-        console.log("cagada")
         return response.status(auth.code).json(auth)
     }
 
-    const token = generateToken({ userId: auth.data.id, tenantId: auth.data.tenant_id })
+    const token = generateToken({ userId: auth.data.id, tenantId: auth.data.tenant_id, accessLevel: auth.data.access_level })        
     
     response
         .cookie('token', token, {
