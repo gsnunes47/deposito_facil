@@ -22,7 +22,7 @@ class ProdutoDomain {
             })
             
             return {
-                "code": "200",
+                "code": 200,
                 "message": "Produto created successfully",
                 "produto_id": produto.id
             }
@@ -30,7 +30,7 @@ class ProdutoDomain {
         } catch (error) {
 
             return {
-                "code": "400",
+                "code": 400,
                 "message": "Error creating produto",
                 "error": error
             }
@@ -68,7 +68,7 @@ class ProdutoDomain {
 
         if (!produto) {
             return {
-                "code": "400",
+                "code": 400,
                 "message": "Produto não encontrado"
             }
         }
@@ -81,7 +81,7 @@ class ProdutoDomain {
         })
 
         return {
-            "code": "200",
+            "code": 200,
             "message": `Produto ${delProduto.id} - ${delProduto.nome} deletado com sucesso`
         }
     }
@@ -92,7 +92,7 @@ class ProdutoDomain {
 
         if (!existingProduto) {
             return {
-                "code": "400",
+                "code": 400,
                 "message": "Produto não encontrado"
             }
         }
@@ -109,12 +109,13 @@ class ProdutoDomain {
         })
 
         return {
-            "code": "200",
+            "code": 200,
             "message": "Produto atualizado com sucesso",
-            "produto": updatedProduto
+            "produto": updatedProduto as produtoInterface
         }
 
     }
 }
 
 export default new ProdutoDomain()
+export type { produtoInterface }
