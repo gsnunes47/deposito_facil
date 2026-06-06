@@ -2,19 +2,30 @@ import { describe, it, expect, afterEach } from 'vitest'
 import clienteDomain from '../../src/domains/clienteDomain.js'
 import prisma from "../../src/repositories/db.js";
 
+let clienteId: number = 0
+
 afterEach(async () => {
-    await prisma.cliente.deleteMany({
-        where: {
-            tenant_id: 1
-        }
-    })
+
+    if(clienteId !== 0) {
+        await prisma.cliente.delete({
+            where: {
+                id: clienteId,
+                tenant_id: 1
+            }
+        })
+
+        clienteId = 0
+    }
+
 })
 
 describe('Cliente Domain', () => {
     it('deve criar um cliente', async () => {
         
         const clienteNovo = await clienteDomain.createCliente("Cliente Teste", 1, "")
-        
+
+        clienteId = Number(clienteNovo.cliente_id)
+
         expect(clienteNovo.code).toBe(200)
     })
 
@@ -31,6 +42,8 @@ describe('Cliente Domain', () => {
     it('deve alterar o nome de um cliente sem mudar seu documento', async () => {
 
         const clienteNovo = await clienteDomain.createCliente("Cliente Teste", 1, "444")
+
+        clienteId = Number(clienteNovo.cliente_id)
 
         const clienteAtualizado = await clienteDomain.updateCliente({
             tenant_id: 1,
@@ -52,6 +65,8 @@ describe('Cliente Domain', () => {
     it('deve alterar o documento de um cliente sem alterar seu nome', async () => {
 
         const clienteNovo = await clienteDomain.createCliente("Cliente Teste", 1, "444")
+
+        clienteId = Number(clienteNovo.cliente_id)
 
         const clienteAtualizado = await clienteDomain.updateCliente({
             tenant_id: 1,

@@ -3,12 +3,20 @@ import produtoDomain from '../../src/domains/produtoDomain.js'
 import prisma from "../../src/repositories/db.js";
 import { produtoInterface } from '../../src/domains/produtoDomain.js'
 
+let produtoId: number = 0
+
 afterEach(async () => {
-    await prisma.produto.deleteMany({
-        where: {
-            tenant_id: 1
-        }
-    })
+
+    if (produtoId !==0) {
+        await prisma.produto.delete({
+            where: {
+                id: produtoId,
+                tenant_id: 1
+            }
+        })
+    }
+    
+    produtoId = 0
 })
 
 describe('Produto Domain', () => {
@@ -16,6 +24,8 @@ describe('Produto Domain', () => {
         
         const produtoNovo = await produtoDomain.createProduto("Produto Teste", 1)
         
+        produtoId = produtoNovo.produto_id as number
+
         expect(produtoNovo.code).toBe(200)
 
     })
@@ -25,7 +35,7 @@ describe('Produto Domain', () => {
         const produtoNovo = await produtoDomain.createProduto("Produto Teste", 1)
 
         const produtoDeletado = await produtoDomain.deleteProduto(produtoNovo.produto_id as number, 1)
-        
+
         expect(produtoDeletado.code).toBe(200)
 
     })
@@ -45,6 +55,8 @@ describe('Produto Domain', () => {
             throw new Error('Produto não foi atualizado')
         }
         
+        produtoId = produtoNovo.produto_id as number
+
         expect(produtoAtualizado.produto.quantidade).toBe(1)
 
     })
@@ -63,6 +75,8 @@ describe('Produto Domain', () => {
         if (!produtoAtualizado.produto) {
             throw new Error('Produto não foi atualizado')
         }
+
+        produtoId = produtoNovo.produto_id as number
         
         expect(produtoAtualizado.produto.quantidade).toBe(-1)
 
@@ -73,6 +87,8 @@ describe('Produto Domain', () => {
         const produtoNovo = await produtoDomain.createProduto("Produto Teste", 1)
 
         const produtoDb = await produtoDomain.getProdutoById(produtoNovo.produto_id as number, 1)
+
+        produtoId = produtoNovo.produto_id as number
         
         expect(produtoDb).toBeInstanceOf(Object)
 
