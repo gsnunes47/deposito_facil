@@ -5,6 +5,7 @@ import authRouter from './routing/routers/authRouter.js'
 import usersRouter from './routing/routers/userRouter.js'
 import produtosRouter from './routing/routers/produtosRouter.js'
 import tenantRouter from './routing/routers/tenantRouter.js'
+import clienteRouter from './routing/routers/clienteRouter.js'
 import authMiddleware from "./routing/middlewares/authMiddleware.js";
 import roleMiddleware from "./routing/middlewares/roleMiddleware.js"
 
@@ -24,6 +25,7 @@ app.use(authMiddleware.verify)
 app.use('/api/tenant', tenantRouter)
 app.use('/api/users', usersRouter)
 app.use('/api/produtos', produtosRouter)
+app.use('/api/cliente', clienteRouter)
 
 app.listen(PORT, () => {
     console.log(`Rodando na porta: ${PORT}`)

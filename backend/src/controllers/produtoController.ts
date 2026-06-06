@@ -13,7 +13,7 @@ export async function createProduto(request: Request, response: Response) {
 
     const produto = await produtoDomain.createProduto(request.body.nome, user.tenantId)
 
-    if (produto.code === '200') {
+    if (produto.code === 200) {
         return response.status(200).send({ message: produto.message, produto_id: produto.produto_id })
     } else {
         return response.status(400).send({ message: produto.message, error: produto.error })
@@ -40,7 +40,7 @@ export async function deleteProduto(request: Request, response: Response) {
 
     const produto = await produtoDomain.deleteProduto(Number(produtoId), request.user.tenantId)
 
-    if (produto.code === '200') {
+    if (produto.code === 200) {
         return response.status(200).send({ message: produto.message })
     } else {
         return response.status(400).send({ message: produto.message})
@@ -74,7 +74,7 @@ export async function updateProduto(request: Request, response: Response) {
 
     const updatedProduto = await produtoDomain.updateProduto(produtoData)
 
-    if (updatedProduto.code != '200') {
+    if (updatedProduto.code != 200) {
         return response.status(400).send(updatedProduto)
     } else {
         response.status(200).send(updatedProduto)

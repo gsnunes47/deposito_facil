@@ -1,5 +1,4 @@
 import prisma from "../repositories/db.js";
-import userDomain from "./userDomain.js";
 
 interface produtoInterface {
     id: number
