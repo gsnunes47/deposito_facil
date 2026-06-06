@@ -22,8 +22,6 @@ app.use('/api/login', authRouter)
 app.use(authMiddleware.verify)
 
 // routes
-app.use('/api/tenant', tenantRouter)
-app.use('/api/users', usersRouter)
 app.use('/api/produtos', produtosRouter)
 app.use('/api/cliente', clienteRouter)
 
