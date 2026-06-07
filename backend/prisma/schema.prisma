@@ -36,26 +36,37 @@ model Cliente {
   nome String?
   documento String? @default("")
   tenant_id Int
+  vendas Venda[]
 }
 
-// User {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   email     String   @unique
-//   name      String?
-//   role      Role     @default(USER)
-//   posts     Post[]
-// }
-// model Post {
-//   id        Int      @id @default(autoincrement())
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   published Boolean  @default(false)
-//   title     String   @db.VarChar(255)
-//   author    User     @relation(fields: [authorId], references: [id])
-//   authorId  Int
-// }
-// enum Role {
-//   USER
-//   ADMIN
-// }
+model Venda {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  cliente_id Int
+  produtos Json @db.Json
+  total Int //centavos
+  data DateTime @default(now())
+  data_quitacao DateTime?
+  pago Boolean @default(false)
+  pagamentos Pagamento[]
+  cliente Cliente @relation(fields: [cliente_id], references: [id])
+  // produtos deve ser um array de transações:
+  // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
+}
+
+enum FormaPagamento {
+  DINHEIRO
+  PIX
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+}
+
+model Pagamento {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  venda_id Int
+  valor Int? @default(1) //centavos
+  data_pagamento DateTime @default(now())
+  forma_pagamento FormaPagamento
+  venda Venda @relation(fields: [venda_id], references: [id])
+}

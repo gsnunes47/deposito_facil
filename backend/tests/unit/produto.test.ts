@@ -1,7 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest'
 import produtoDomain from '../../src/domains/produtoDomain.js'
 import prisma from "../../src/repositories/db.js";
-import { produtoInterface } from '../../src/domains/produtoDomain.js'
 
 let produtoId: number = 0
 
