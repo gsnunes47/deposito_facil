@@ -2,10 +2,11 @@ import "dotenv/config"
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import authRouter from './routing/routers/authRouter.js'
-import usersRouter from './routing/routers/userRouter.js'
 import produtosRouter from './routing/routers/produtosRouter.js'
-import tenantRouter from './routing/routers/tenantRouter.js'
+import vendaRouter from './routing/routers/vendaRouter.js'
 import clienteRouter from './routing/routers/clienteRouter.js'
+import usersRouter from './routing/routers/userRouter.js'
+import tenantRouter from './routing/routers/tenantRouter.js'
 import authMiddleware from "./routing/middlewares/authMiddleware.js";
 import roleMiddleware from "./routing/middlewares/roleMiddleware.js"
 
@@ -24,6 +25,7 @@ app.use(authMiddleware.verify)
 // routes
 app.use('/api/produtos', produtosRouter)
 app.use('/api/cliente', clienteRouter)
+app.use('/api/venda', vendaRouter)
 
 app.listen(PORT, () => {
     console.log(`Rodando na porta: ${PORT}`)

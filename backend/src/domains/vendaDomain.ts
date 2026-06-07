@@ -7,7 +7,6 @@ class VendaDomain {
 
         try {
 
-
             let total = 0
 
             for (const produto of produtos) {
@@ -22,7 +21,7 @@ class VendaDomain {
                     total: total
                 }
             })
-            
+
             return {
                 "code": 200,
                 "message": "Venda created successfully",
@@ -34,7 +33,7 @@ class VendaDomain {
             return {
                 "code": 400,
                 "message": "Error creating venda",
-                "error": error
+                "error": error instanceof Error ? error.message : String(error)
             }
 
         }
