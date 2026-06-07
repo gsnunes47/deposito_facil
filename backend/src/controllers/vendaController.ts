@@ -5,10 +5,8 @@ export async function createVenda(request: Request, response: Response) {
     
     const user = request.user
 
-    if (!request.body.cliente_id) {
-        return response.status(400).send({ error: "ID do cliente é obrigatório" });
-    } else if (isNaN(Number(request.body.cliente_id))) {
-        return response.status(400).send({ error: "ID do cliente deve ser um número" });
+    if (!request.body.cliente_id || isNaN(Number(request.body.cliente_id))) {
+        return response.status(400).send({ error: "ID do cliente é obrigatório e deve ser um número" });
     }
 
     if (!request.body.produtos || !Array.isArray(request.body.produtos) || request.body.produtos.length === 0) {
@@ -48,7 +46,7 @@ export async function createVenda(request: Request, response: Response) {
     }
     
     const vendaNova = await vendaDomain.createVenda(
-        request.body.cliente_id,
+        Number(request.body.cliente_id),
         produtosData,
         request.user.tenantId
     )

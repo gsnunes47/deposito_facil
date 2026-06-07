@@ -1,6 +1,6 @@
 import prisma from "../repositories/db.js";
 import type { Venda } from '@prisma/client'
-import {getNextTenantId, receiveGlobalId} from '../helpers/globalIdHelper.js'
+import {getNextTenantId, getGlobalId} from '../helpers/globalIdHelper.js'
 
 interface clienteInterface {
     tenant_id: number,
@@ -20,17 +20,11 @@ class VendaDomain {
                 tenant_id
             )
 
-            const clienteId = await receiveGlobalId(
+            const clienteId = await getGlobalId(
                 prisma.cliente,
                 cliente_id,
                 tenant_id
             )
-
-            console.log("Cliente Id: ", cliente_id)
-            console.log("Cliente Global Id: ", clienteId)
-
-            // cliente id = 14 | global id 62 : relaçao é no global
-            // criar um helper INTERNO recebendo tenant, id e tabela e devolver o global
 
             let total = 0
 

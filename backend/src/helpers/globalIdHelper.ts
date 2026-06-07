@@ -20,7 +20,7 @@ export async function getNextTenantId(
     return (ultimoRegistro?.id ?? 0) + 1
 }
 
-export async function receiveGlobalId(
+export async function getGlobalId(
     model: any,
     id: number,
     tenant_id: number

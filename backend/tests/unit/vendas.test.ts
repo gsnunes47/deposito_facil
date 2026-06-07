@@ -29,24 +29,24 @@ afterEach(async () => {
 })
 
 afterAll(async () => {
-
+    
     await prisma.cliente.deleteMany({
         where: {
-            id: cliente.id,
+            id: cliente.cliente_id,
             tenant_id: 1
         }
     })
 
     await prisma.produto.deleteMany({
         where: {
-            id: produto1.id,
+            id: produto1.produto_id,
             tenant_id: 1
         }
     })
 
     await prisma.produto.deleteMany({
         where: {
-            id: produto2.id,
+            id: produto2.produto_id,
             tenant_id: 1
         }
     })
@@ -73,8 +73,6 @@ describe('Venda Domain', () => {
             ],
             1
         )
-
-        console.log(vendaNovo)
 
         vendaId = vendaNovo.venda_id as number
         

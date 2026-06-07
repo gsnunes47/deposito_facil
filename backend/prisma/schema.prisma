@@ -17,7 +17,7 @@ model Tenants {
 model User {
   id Int @id @default(autoincrement())
   created_at DateTime @default(now())
-  name String @unique
+  name String
   password String
   access_level String
   tenant_id Int
