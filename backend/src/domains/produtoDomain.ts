@@ -1,4 +1,5 @@
 import prisma from "../repositories/db.js";
+import {getNextTenantId} from '../helpers/globalIdHelper.js'
 
 interface produtoInterface {
     id: number
@@ -13,8 +14,14 @@ class ProdutoDomain {
 
         try {
 
+            const novoId = await getNextTenantId(
+                prisma.produto,
+                tenant_id
+            )
+
             const produto = await prisma.produto.create({
                 data: {
+                    id: novoId,
                     nome: name,
                     tenant_id: tenant_id
                 }
@@ -43,13 +50,18 @@ class ProdutoDomain {
         const produtos = await prisma.produto.findMany({
             where: {
                 tenant_id: tenantId
+            },
+            select: {
+                id: true,
+                nome: true,
+                quantidade: true,
             }
         })
         
         return produtos
     }
 
-    async getProdutoById(produtoId: number,tenantId: number) {
+    private async getProdutoById(produtoId: number,tenantId: number) {
 
         const produto = await prisma.produto.findFirst({
             where: {
@@ -74,6 +86,7 @@ class ProdutoDomain {
 
         const delProduto = await prisma.produto.delete({
             where: {
+                global_id: produto.global_id,
                 id: produtoId,
                 tenant_id: tenantId
             }
@@ -98,6 +111,7 @@ class ProdutoDomain {
 
         const updatedProduto = await prisma.produto.update({
             where: {
+                global_id: existingProduto.global_id,
                 id: produto.id,
                 tenant_id: produto.tenant_id
             },

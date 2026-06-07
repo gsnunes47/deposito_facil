@@ -1,5 +1,14 @@
 import prisma from "../repositories/db.js";
 import type { Cliente } from '@prisma/client'
+import {getNextTenantId} from '../helpers/globalIdHelper.js'
+
+
+interface clienteInterface {
+    tenant_id: number,
+    documento: any,
+    nome: any,
+    id: number
+}
 
 class ClienteDomain {
 
@@ -7,8 +16,14 @@ class ClienteDomain {
 
         try {
 
+            const novoId = await getNextTenantId(
+                prisma.cliente,
+                tenant_id
+            )
+
             const cliente = await prisma.cliente.create({
                 data: {
+                    id: novoId,
                     nome: name,
                     documento: documento ?? "",
                     tenant_id: tenant_id
@@ -38,13 +53,18 @@ class ClienteDomain {
         const clientes = await prisma.cliente.findMany({
             where: {
                 tenant_id: tenantId
+            },
+            select: {
+                id: true,
+                nome: true,
+                documento: true,
             }
         })
         
         return clientes
     }
 
-    async getClienteById(clienteId: number,tenantId: number) {
+    private async getClienteById(clienteId: number ,tenantId: number) {
 
         const cliente = await prisma.cliente.findFirst({
             where: {
@@ -52,7 +72,7 @@ class ClienteDomain {
                 tenant_id: tenantId
             }
         })
-        
+
         return cliente
     }
 
@@ -69,6 +89,7 @@ class ClienteDomain {
 
         const delCliente = await prisma.cliente.delete({
             where: {
+                global_id: cliente.global_id,
                 id: clienteId,
                 tenant_id: tenantId
             }
@@ -80,7 +101,7 @@ class ClienteDomain {
         }
     }
 
-    async updateCliente(cliente: Cliente) {
+    async updateCliente(cliente: clienteInterface) {
 
         const existingCliente = await this.getClienteById(cliente.id, cliente.tenant_id)
 
@@ -93,6 +114,7 @@ class ClienteDomain {
 
         const updatedCliente = await prisma.cliente.update({
             where: {
+                global_id: existingCliente.global_id,
                 id: cliente.id,
                 tenant_id: cliente.tenant_id
             },

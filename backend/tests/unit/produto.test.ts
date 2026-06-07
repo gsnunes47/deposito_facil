@@ -7,7 +7,7 @@ let produtoId: number = 0
 afterEach(async () => {
 
     if (produtoId !==0) {
-        await prisma.produto.delete({
+        await prisma.produto.deleteMany({
             where: {
                 id: produtoId,
                 tenant_id: 1
@@ -81,18 +81,6 @@ describe('Produto Domain', () => {
 
     })
 
-    it('deve retornar um produto', async () => {
-
-        const produtoNovo = await produtoDomain.createProduto("Produto Teste", 1)
-
-        const produtoDb = await produtoDomain.getProdutoById(produtoNovo.produto_id as number, 1)
-
-        produtoId = produtoNovo.produto_id as number
-        
-        expect(produtoDb).toBeInstanceOf(Object)
-
-    })
-
     it('deve retornar erro ao atualizar produto inexistente', async () => {
         const resultado = await produtoDomain.updateProduto({
             id: 999999,
@@ -112,5 +100,15 @@ describe('Produto Domain', () => {
 
         expect(resultado.code).toBe(400)
     })
-    
+  
+
+    it('deve ler os dados de um produto sem expor seu global_id', async () => {
+        const produtoNovo = await produtoDomain.createProduto("Produto Teste", 1)
+
+        produtoId = produtoNovo.produto_id as number
+
+        const consultaProduto = await produtoDomain.getProdutos(1)
+        
+        expect('global_id' in consultaProduto[0]).toBe(false)
+    })  
 })

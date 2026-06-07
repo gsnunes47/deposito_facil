@@ -25,22 +25,25 @@ model User {
 }
 
 model Produto {
-  id Int @id @default(autoincrement())
+  global_id Int @id @default(autoincrement())
+  id Int 
+  tenant_id Int
   nome String
   quantidade Int? @default(0)
-  tenant_id Int
 }
 
 model Cliente {
-  id Int @id @default(autoincrement())
+  global_id Int @id @default(autoincrement())
+  id Int
+  tenant_id Int
   nome String?
   documento String? @default("")
-  tenant_id Int
   vendas Venda[]
 }
 
 model Venda {
-  id Int @id @default(autoincrement())
+  global_id Int @id @default(autoincrement())
+  id Int
   tenant_id Int
   cliente_id Int
   produtos Json @db.Json
@@ -49,7 +52,7 @@ model Venda {
   data_quitacao DateTime?
   pago Boolean @default(false)
   pagamentos Pagamento[]
-  cliente Cliente @relation(fields: [cliente_id], references: [id])
+  cliente Cliente @relation(fields: [cliente_id], references: [global_id])
   // produtos deve ser um array de transações:
   // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
 }
@@ -62,11 +65,12 @@ enum FormaPagamento {
 }
 
 model Pagamento {
-  id Int @id @default(autoincrement())
+  global_id Int @id @default(autoincrement())
+  id Int
   tenant_id Int
   venda_id Int
   valor Int? @default(1) //centavos
   data_pagamento DateTime @default(now())
   forma_pagamento FormaPagamento
-  venda Venda @relation(fields: [venda_id], references: [id])
+  venda Venda @relation(fields: [venda_id], references: [global_id])
 }

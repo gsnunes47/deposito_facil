@@ -7,7 +7,7 @@ let clienteId: number = 0
 afterEach(async () => {
 
     if(clienteId !== 0) {
-        await prisma.cliente.delete({
+        await prisma.cliente.deleteMany({
             where: {
                 id: clienteId,
                 tenant_id: 1
@@ -102,6 +102,16 @@ describe('Cliente Domain', () => {
         )
 
         expect(resultado.code).toBe(400)
+    })
+
+    it('deve ler os dados de um cliente sem expor seu global_id', async () => {
+        const clienteNovo = await clienteDomain.createCliente("Cliente Teste", 1, "444")
+
+        clienteId = Number(clienteNovo.cliente_id)
+
+        const consultaCliente = await clienteDomain.getClientes(1)
+        
+        expect('global_id' in consultaCliente[0]).toBe(false)
     })
     
 })
