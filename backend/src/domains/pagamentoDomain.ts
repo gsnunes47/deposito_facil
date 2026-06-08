@@ -1,7 +1,7 @@
 import prisma from "../repositories/db.js";
 import type { FormaPagamento, Pagamento } from '@prisma/client'
 import {getNextTenantId, getGlobalId} from '../helpers/globalIdHelper.js'
-
+import vendaDomain from './vendaDomain.js'
 
 interface pagamentoInterface {
     id: number
@@ -28,6 +28,39 @@ class PagamentoDomain {
                 tenant_id
             )
 
+            let vendas = await vendaDomain.getVendasAbertas(tenant_id)
+            const vendaDestino = vendas.find((venda) => venda.id === venda_id)
+
+            if (!vendaDestino) {
+                return {
+                    "code": 400,
+                    "message": "Impossível adicionar um pagamento para esta venda"
+                }
+            }
+            
+            if (vendaDestino.total - valor < 0){
+                return {
+                    "code": 400,
+                    "message": "O pagamento deve ser igual ou menor que o valor total da venda"
+                }
+            } else if (vendaDestino.total - valor > 0) {
+                const pagamento = await prisma.pagamento.create({
+                    data: {
+                        id: novoId,
+                        venda_id: vendaId,
+                        tenant_id: tenant_id,
+                        forma_pagamento: forma_pagamento,
+                        valor: valor
+                    }
+                })
+                
+                return {
+                    "code": 200,
+                    "message": "Pagamento created successfully",
+                    "pagamento_id": pagamento.id
+                }
+            }
+
             const pagamento = await prisma.pagamento.create({
                 data: {
                     id: novoId,
@@ -37,11 +70,14 @@ class PagamentoDomain {
                     valor: valor
                 }
             })
+
+            const vendaAtt = await vendaDomain.updateVenda(venda_id, tenant_id, true, new Date())
             
             return {
                 "code": 200,
                 "message": "Pagamento created successfully",
-                "pagamento_id": pagamento.id
+                "pagamento_id": pagamento.id,
+                "venda": `Venda ${vendaAtt.venda_id} fechada.`
             }
 
         } catch (error) {

@@ -33,7 +33,7 @@ beforeAll(async () => {
 afterEach(async () => {
 
     if (pagamentoId !== 0) {
-        await vendaDomain.deleteVenda(pagamentoId, 1)
+        await pagamentoDomain.deletePagamento(pagamentoId, 1)
     }
     
     pagamentoId = 0
@@ -69,7 +69,7 @@ describe('Pagamento Domain', () => {
     it('deve criar um pagamento', async () => {
 
         const pagamentoNovo = await pagamentoDomain.createPagamento(
-            venda.id,
+            venda.venda_id,
             1,
             "PIX",
             500
@@ -80,27 +80,43 @@ describe('Pagamento Domain', () => {
         expect(pagamentoNovo.code).toBe(200)
     })
    
+   
     it('deve deletar um pagamento', async () => {
 
         const pagamentoNovo = await pagamentoDomain.createPagamento(
-            venda.id,
+            venda.venda_id,
             1,
             "PIX",
             500
         )
+        console.log(pagamentoNovo)
 
         const pagamentoDeletado = await pagamentoDomain.deletePagamento(
             Number(pagamentoNovo.pagamento_id),
             1,
         )
-        
+
         expect(pagamentoDeletado.code).toBe(200)
     })
    
+    it('deve criar um pagamento que feche a venda', async () => {
+
+        const pagamentoNovo = await pagamentoDomain.createPagamento(
+            venda.venda_id,
+            1,
+            "PIX",
+            2000
+        )
+
+        pagamentoId = pagamentoNovo.pagamento_id as number
+        
+        expect(!pagamentoNovo.venda).toBe(false)
+    })
+
     it('deve falhar ao tentar criar um pagamento com forma de pagamento errada', async () => {
 
         const pagamentoNovo = await pagamentoDomain.createPagamento(
-            venda.id,
+            venda.venda_id,
             1,
             "CREDITO" as any,
             500
@@ -108,9 +124,5 @@ describe('Pagamento Domain', () => {
         
         expect(pagamentoNovo.code).toBe(400)
     })
-
-    // it('deve fechar uma venda', async () => {
-
-    // })
 
 })

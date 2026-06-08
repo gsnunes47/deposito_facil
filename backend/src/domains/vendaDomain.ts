@@ -168,8 +168,8 @@ class VendaDomain {
 
         return {
             "code": 200,
-            "message": "Venda atualizado com sucesso",
-            "venda": updatedVenda as Venda
+            "message": "Venda atualizada com sucesso",
+            "venda_id": updatedVenda.id
         }
 
     }
