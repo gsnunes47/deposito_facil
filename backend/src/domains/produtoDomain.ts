@@ -1,134 +1,122 @@
-import prisma from "../repositories/db.js";
-import {getNextTenantId} from '../helpers/globalIdHelper.js'
+import prisma from '../repositories/db.js';
+import { getNextTenantId } from '../helpers/globalIdHelper.js';
 
 interface produtoInterface {
-    id: number
-    nome: string
-    quantidade: number
-    tenant_id: number
+  id: number;
+  nome: string;
+  quantidade: number;
+  tenant_id: number;
 }
 
 class ProdutoDomain {
+  async createProduto(name: string, tenant_id: number) {
+    try {
+      const novoId = await getNextTenantId(prisma.produto, tenant_id);
 
-    async createProduto(name: string, tenant_id: number) {
+      const produto = await prisma.produto.create({
+        data: {
+          id: novoId,
+          nome: name,
+          tenant_id: tenant_id,
+        },
+      });
 
-        try {
+      return {
+        code: 200,
+        message: 'Produto created successfully',
+        produto_id: produto.id,
+      };
+    } catch (error) {
+      return {
+        code: 400,
+        message: 'Error creating produto',
+        error: error,
+      };
+    }
+  }
 
-            const novoId = await getNextTenantId(
-                prisma.produto,
-                tenant_id
-            )
+  async getProdutos(tenantId: number) {
+    const produtos = await prisma.produto.findMany({
+      where: {
+        tenant_id: tenantId,
+      },
+      select: {
+        id: true,
+        nome: true,
+        quantidade: true,
+      },
+    });
 
-            const produto = await prisma.produto.create({
-                data: {
-                    id: novoId,
-                    nome: name,
-                    tenant_id: tenant_id
-                }
-            })
-            
-            return {
-                "code": 200,
-                "message": "Produto created successfully",
-                "produto_id": produto.id
-            }
+    return produtos;
+  }
 
-        } catch (error) {
+  private async getProdutoById(produtoId: number, tenantId: number) {
+    const produto = await prisma.produto.findFirst({
+      where: {
+        id: produtoId,
+        tenant_id: tenantId,
+      },
+    });
 
-            return {
-                "code": 400,
-                "message": "Error creating produto",
-                "error": error
-            }
+    return produto;
+  }
 
-        }
+  async deleteProduto(produtoId: number, tenantId: number) {
+    const produto = await this.getProdutoById(produtoId, tenantId);
 
+    if (!produto) {
+      return {
+        code: 400,
+        message: 'Produto não encontrado',
+      };
     }
 
-    async getProdutos(tenantId: number) {
+    const delProduto = await prisma.produto.delete({
+      where: {
+        global_id: produto.global_id,
+        id: produtoId,
+        tenant_id: tenantId,
+      },
+    });
 
-        const produtos = await prisma.produto.findMany({
-            where: {
-                tenant_id: tenantId
-            },
-            select: {
-                id: true,
-                nome: true,
-                quantidade: true,
-            }
-        })
-        
-        return produtos
+    return {
+      code: 200,
+      message: `Produto ${delProduto.id} - ${delProduto.nome} deletado com sucesso`,
+    };
+  }
+
+  async updateProduto(produto: produtoInterface) {
+    const existingProduto = await this.getProdutoById(
+      produto.id,
+      produto.tenant_id,
+    );
+
+    if (!existingProduto) {
+      return {
+        code: 400,
+        message: 'Produto não encontrado',
+      };
     }
 
-    private async getProdutoById(produtoId: number,tenantId: number) {
+    const updatedProduto = await prisma.produto.update({
+      where: {
+        global_id: existingProduto.global_id,
+        id: produto.id,
+        tenant_id: produto.tenant_id,
+      },
+      data: {
+        nome: produto.nome,
+        quantidade: produto.quantidade,
+      },
+    });
 
-        const produto = await prisma.produto.findFirst({
-            where: {
-                id: produtoId,
-                tenant_id: tenantId
-            }
-        })
-        
-        return produto
-    }
-
-    async deleteProduto(produtoId: number, tenantId: number) {
-
-        const produto = await this.getProdutoById(produtoId, tenantId)
-
-        if (!produto) {
-            return {
-                "code": 400,
-                "message": "Produto não encontrado"
-            }
-        }
-
-        const delProduto = await prisma.produto.delete({
-            where: {
-                global_id: produto.global_id,
-                id: produtoId,
-                tenant_id: tenantId
-            }
-        })
-
-        return {
-            "code": 200,
-            "message": `Produto ${delProduto.id} - ${delProduto.nome} deletado com sucesso`
-        }
-    }
-
-    async updateProduto(produto: produtoInterface) {
-
-        const existingProduto = await this.getProdutoById(produto.id, produto.tenant_id)
-
-        if (!existingProduto) {
-            return {
-                "code": 400,
-                "message": "Produto não encontrado"
-            }
-        }
-
-        const updatedProduto = await prisma.produto.update({
-            where: {
-                global_id: existingProduto.global_id,
-                id: produto.id,
-                tenant_id: produto.tenant_id
-            },
-            data: {
-                nome: produto.nome,
-                quantidade: produto.quantidade
-            }
-        })
-
-        return {
-            "code": 200,
-            "message": "Produto atualizado com sucesso",
-            "produto": updatedProduto as produtoInterface
-        }
-
-    }
+    return {
+      code: 200,
+      message: 'Produto atualizado com sucesso',
+      produto: updatedProduto as produtoInterface,
+    };
+  }
 }
 
-export default new ProdutoDomain()
-export type { produtoInterface }
+export default new ProdutoDomain();
+export type { produtoInterface };

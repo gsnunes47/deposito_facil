@@ -1,20 +1,18 @@
-import type { Request, Response } from "express";
-import prisma from "../repositories/db.js";
+import type { Request, Response } from 'express';
+import prisma from '../repositories/db.js';
 
 export function getUsers(request: Request, response: Response) {
+  const users = prisma.user.findMany();
 
-    const users = prisma.user.findMany()
-
-    response.send(users)
+  response.send(users);
 }
 
 export function getUserById(request: Request, response: Response) {
-    response.send([])
+  response.send([]);
 }
 
 export function createUser(request: Request, response: Response) {
+  console.log(request.body);
 
-    console.log(request.body)
-
-    response.send([])
+  response.send([]);
 }

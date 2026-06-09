@@ -1,179 +1,167 @@
-import prisma from "../repositories/db.js";
-import type { Venda } from '@prisma/client'
-import {getNextTenantId, getGlobalId} from '../helpers/globalIdHelper.js'
+import prisma from '../repositories/db.js';
+import type { Venda } from '@prisma/client';
+import { getNextTenantId, getGlobalId } from '../helpers/globalIdHelper.js';
 
 interface clienteInterface {
-    tenant_id: number,
-    documento: any,
-    nome: any,
-    id: number
+  tenant_id: number;
+  documento: any;
+  nome: any;
+  id: number;
 }
 
 class VendaDomain {
+  async createVenda(cliente_id: number, produtos: any, tenant_id: number) {
+    try {
+      const novoId = await getNextTenantId(prisma.venda, tenant_id);
 
-    async createVenda(cliente_id: number, produtos: any, tenant_id: number) {
+      const clienteId = await getGlobalId(
+        prisma.cliente,
+        cliente_id,
+        tenant_id,
+      );
 
-        try {
+      let total = 0;
 
-            const novoId = await getNextTenantId(
-                prisma.venda,
-                tenant_id
-            )
+      for (const produto of produtos) {
+        total += produto.quantidade * produto.valor_unitario;
+      }
 
-            const clienteId = await getGlobalId(
-                prisma.cliente,
-                cliente_id,
-                tenant_id
-            )
+      const venda = await prisma.venda.create({
+        data: {
+          id: novoId,
+          cliente_id: clienteId,
+          tenant_id: tenant_id,
+          produtos: produtos,
+          total: total,
+        },
+      });
 
-            let total = 0
+      return {
+        code: 200,
+        message: 'Venda created successfully',
+        venda_id: venda.id,
+      };
+    } catch (error) {
+      return {
+        code: 400,
+        message: 'Error creating venda',
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
 
-            for (const produto of produtos) {
-                total += produto.quantidade * produto.valor_unitario
-            }
-            
-            const venda = await prisma.venda.create({
-                data: {
-                    id: novoId,
-                    cliente_id: clienteId,
-                    tenant_id: tenant_id,
-                    produtos: produtos,
-                    total: total
-                }
-            })
+  async getVendasAbertas(tenantId: number) {
+    const vendas = await prisma.venda.findMany({
+      where: {
+        tenant_id: tenantId,
+        pago: false,
+      },
+      select: {
+        id: true,
+        tenant_id: true,
+        cliente_id: true,
+        produtos: true,
+        total: true,
+        data: true,
+        data_quitacao: true,
+        pago: true,
+        pagamentos: true,
+      },
+    });
 
-            return {
-                "code": 200,
-                "message": "Venda created successfully",
-                "venda_id": venda.id
-            }
+    return vendas;
+  }
 
-        } catch (error) {
+  async getVendasFechadas(tenantId: number) {
+    const vendas = await prisma.venda.findMany({
+      where: {
+        tenant_id: tenantId,
+        pago: true,
+      },
+      select: {
+        id: true,
+        tenant_id: true,
+        cliente_id: true,
+        produtos: true,
+        total: true,
+        data: true,
+        data_quitacao: true,
+        pago: true,
+        pagamentos: true,
+      },
+    });
 
-            return {
-                "code": 400,
-                "message": "Error creating venda",
-                "error": error instanceof Error ? error.message : String(error)
-            }
+    return vendas;
+  }
 
-        }
+  private async getVendaById(vendaId: number, tenantId: number) {
+    const venda = await prisma.venda.findFirst({
+      where: {
+        id: vendaId,
+        tenant_id: tenantId,
+      },
+    });
 
+    return venda;
+  }
+
+  async deleteVenda(vendaId: number, tenantId: number) {
+    const venda = await this.getVendaById(vendaId, tenantId);
+
+    if (!venda) {
+      return {
+        code: 400,
+        message: 'Venda não encontrado',
+      };
     }
 
-    async getVendasAbertas(tenantId: number) {
+    const delVenda = await prisma.venda.delete({
+      where: {
+        global_id: venda.global_id,
+        id: vendaId,
+        tenant_id: tenantId,
+      },
+    });
 
-        const vendas = await prisma.venda.findMany({
-            where: {
-                tenant_id: tenantId,
-                pago: false
-            },
-            select: {
-                id: true,
-                tenant_id: true,
-                cliente_id: true,
-                produtos: true,
-                total: true,
-                data: true,
-                data_quitacao: true,
-                pago: true,
-                pagamentos: true
-            }
-        })
-        
-        return vendas
+    return {
+      code: 200,
+      message: `Venda ${delVenda.id} deletado com sucesso`,
+    };
+  }
+
+  async updateVenda(
+    id: number,
+    tenant_id: number,
+    pago: boolean,
+    data_quitacao: Date,
+  ) {
+    const existingVenda = await this.getVendaById(id, tenant_id);
+
+    if (!existingVenda) {
+      return {
+        code: 400,
+        message: 'Venda não encontrada',
+      };
     }
 
-    async getVendasFechadas(tenantId: number) {
+    const updatedVenda = await prisma.venda.update({
+      where: {
+        global_id: existingVenda.global_id,
+        id: id,
+        tenant_id: tenant_id,
+      },
+      data: {
+        pago: pago ?? existingVenda.pago,
+        data_quitacao: data_quitacao ?? existingVenda.data_quitacao,
+      },
+    });
 
-        const vendas = await prisma.venda.findMany({
-            where: {
-                tenant_id: tenantId,
-                pago: true
-            },
-            select: {
-                id: true,
-                tenant_id: true,
-                cliente_id: true,
-                produtos: true,
-                total: true,
-                data: true,
-                data_quitacao: true,
-                pago: true,
-                pagamentos: true
-            }
-        })
-        
-        return vendas
-    }
-
-    private async getVendaById(vendaId: number,tenantId: number) {
-
-        const venda = await prisma.venda.findFirst({
-            where: {
-                id: vendaId,
-                tenant_id: tenantId
-            }
-        })
-        
-        return venda
-    }
-
-    async deleteVenda(vendaId: number, tenantId: number) {
-
-        const venda = await this.getVendaById(vendaId, tenantId)
-
-        if (!venda) {
-            return {
-                "code": 400,
-                "message": "Venda não encontrado"
-            }
-        }
-
-        const delVenda = await prisma.venda.delete({
-            where: {
-                global_id: venda.global_id,
-                id: vendaId,
-                tenant_id: tenantId
-            }
-        })
-
-        return {
-            "code": 200,
-            "message": `Venda ${delVenda.id} deletado com sucesso`
-        }
-    }
-
-    async updateVenda(id: number, tenant_id: number, pago: boolean, data_quitacao: Date) {
-
-        const existingVenda = await this.getVendaById(id, tenant_id)
-
-        if (!existingVenda) {
-            return {
-                "code": 400,
-                "message": "Venda não encontrada"
-            }
-        }
-
-        const updatedVenda = await prisma.venda.update({
-            where: {
-                global_id: existingVenda.global_id,
-                id: id,
-                tenant_id: tenant_id
-            },
-            data: {
-                pago: pago ?? existingVenda.pago,
-                data_quitacao: data_quitacao ?? existingVenda.data_quitacao
-            }
-        })
-
-        return {
-            "code": 200,
-            "message": "Venda atualizada com sucesso",
-            "venda_id": updatedVenda.id
-        }
-
-    }
-    
+    return {
+      code: 200,
+      message: 'Venda atualizada com sucesso',
+      venda_id: updatedVenda.id,
+    };
+  }
 }
 
-export default new VendaDomain()
+export default new VendaDomain();

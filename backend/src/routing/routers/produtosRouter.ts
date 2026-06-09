@@ -1,15 +1,15 @@
-import { Router } from "express";
-import { type NextFunction, type Request, type Response } from 'express'
-import * as controllers from "../../controllers/produtoController.js";
+import { Router } from 'express';
+import { type NextFunction, type Request, type Response } from 'express';
+import * as controllers from '../../controllers/produtoController.js';
 
-const router = Router()
+const router = Router();
 
-router.post('/', controllers.createProduto)
+router.post('/', controllers.createProduto);
 
-router.get('/', controllers.getProdutos)
+router.get('/', controllers.getProdutos);
 
-router.delete('/:id', controllers.deleteProduto)
+router.delete('/:id', controllers.deleteProduto);
 
-router.put('/:id', controllers.updateProduto)
+router.put('/:id', controllers.updateProduto);
 
 export default router;

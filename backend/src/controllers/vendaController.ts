@@ -1,72 +1,89 @@
-import type { Request, Response } from "express";
-import vendaDomain from "../domains/vendaDomain.js";
+import type { Request, Response } from 'express';
+import vendaDomain from '../domains/vendaDomain.js';
 
 export async function createVenda(request: Request, response: Response) {
-    
-    const user = request.user
+  const user = request.user;
 
-    if (!request.body.cliente_id || isNaN(Number(request.body.cliente_id))) {
-        return response.status(400).send({ error: "ID do cliente é obrigatório e deve ser um número" });
+  if (!request.body.cliente_id || isNaN(Number(request.body.cliente_id))) {
+    return response.status(400).send({
+      error: 'ID do cliente é obrigatório e deve ser um número',
+    });
+  }
+
+  if (
+    !request.body.produtos ||
+    !Array.isArray(request.body.produtos) ||
+    request.body.produtos.length === 0
+  ) {
+    return response.status(400).send({
+      error: 'Produtos da venda são obrigatórios e devem ser uma lista',
+    });
+  }
+
+  let produtosData: any[] = [];
+
+  for (const [index, produto] of request.body.produtos.entries()) {
+    if (!produto.produto_id) {
+      return response.status(400).send({
+        error: `ID do produto é obrigatório para o produto na posição ${index}`,
+      });
+    } else if (isNaN(Number(produto.produto_id))) {
+      return response.status(400).send({
+        error: `ID do produto deve ser um número para o produto na posição ${index}`,
+      });
     }
 
-    if (!request.body.produtos || !Array.isArray(request.body.produtos) || request.body.produtos.length === 0) {
-        return response.status(400).send({ error: "Produtos da venda são obrigatórios e devem ser uma lista" });
+    if (!produto.quantidade) {
+      return response.status(400).send({
+        error: `Quantidade é obrigatória para o produto na posição ${index}`,
+      });
+    } else if (isNaN(Number(produto.quantidade))) {
+      return response.status(400).send({
+        error: `Quantidade deve ser um número para o produto na posição ${index}`,
+      });
     }
 
-    let produtosData: any[] = [];
-
-    for (const [index, produto] of request.body.produtos.entries()) {
-        
-        if (!produto.produto_id) {
-            return response.status(400).send({ error: `ID do produto é obrigatório para o produto na posição ${index}` });
-        } else if (isNaN(Number(produto.produto_id))) {
-            return response.status(400).send({ error: `ID do produto deve ser um número para o produto na posição ${index}` });
-        }
-
-        if (!produto.quantidade) {
-            return response.status(400).send({ error: `Quantidade é obrigatória para o produto na posição ${index}` });
-        } else if (isNaN(Number(produto.quantidade))) {
-            return response.status(400).send({ error: `Quantidade deve ser um número para o produto na posição ${index}` });
-        }
-
-        if (!produto.valor_unitario) {
-            return response.status(400).send({ error: `Valor unitário é obrigatório para o produto na posição ${index}` });
-        } else if (isNaN(Number(produto.valor_unitario))) {
-            return response.status(400).send({ error: `Valor unitário deve ser um número para o produto na posição ${index}` });
-        }
-
-        produtosData.push(
-            {
-                "produto_id": produto.produto_id,
-                "quantidade": produto.quantidade,
-                "valor_unitario": produto.valor_unitario
-            }
-        )
-
-    }
-    
-    const vendaNova = await vendaDomain.createVenda(
-        Number(request.body.cliente_id),
-        produtosData,
-        request.user.tenantId
-    )
-
-    if (!vendaNova.venda_id) {
-        return response.status(400).send(vendaNova)
+    if (!produto.valor_unitario) {
+      return response.status(400).send({
+        error: `Valor unitário é obrigatório para o produto na posição ${index}`,
+      });
+    } else if (isNaN(Number(produto.valor_unitario))) {
+      return response.status(400).send({
+        error: `Valor unitário deve ser um número para o produto na posição ${index}`,
+      });
     }
 
-    return response.status(200).send({ message: "Venda criada com sucesso", "venda_id": vendaNova.venda_id })
+    produtosData.push({
+      produto_id: produto.produto_id,
+      quantidade: produto.quantidade,
+      valor_unitario: produto.valor_unitario,
+    });
+  }
 
+  const vendaNova = await vendaDomain.createVenda(
+    Number(request.body.cliente_id),
+    produtosData,
+    request.user.tenantId,
+  );
+
+  if (!vendaNova.venda_id) {
+    return response.status(400).send(vendaNova);
+  }
+
+  return response.status(200).send({
+    message: 'Venda criada com sucesso',
+    venda_id: vendaNova.venda_id,
+  });
 }
 
 export async function getVendasAbertas(request: Request, response: Response) {
-    let vendas = await vendaDomain.getVendasAbertas(request.user.tenantId)
-    response.status(200).send(vendas)
+  let vendas = await vendaDomain.getVendasAbertas(request.user.tenantId);
+  response.status(200).send(vendas);
 }
 
 export async function getVendasFechadas(request: Request, response: Response) {
-    let vendas = await vendaDomain.getVendasFechadas(request.user.tenantId)
-    response.status(200).send(vendas)
+  let vendas = await vendaDomain.getVendasFechadas(request.user.tenantId);
+  response.status(200).send(vendas);
 }
 
 // export async function updateVenda(request: Request, response: Response) {
