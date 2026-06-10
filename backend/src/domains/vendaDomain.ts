@@ -1,4 +1,5 @@
 import prisma from '../repositories/db.js';
+import produtoDomain from './produtoDomain.js';
 import type { Venda } from '@prisma/client';
 
 interface clienteInterface {
@@ -15,6 +16,23 @@ class VendaDomain {
 
       for (const produto of produtos) {
         total += produto.quantidade * produto.valor_unitario;
+
+        const produtoDb = await produtoDomain.getProdutoById(produto.id, tenant_id);
+
+        if (!produtoDb) {
+          return {
+            code: 400,
+            message: 'Error creating venda',
+            error: 'Produto inexistente',
+          };
+        }
+
+        await produtoDomain.updateProduto({
+          id: produto.id,
+          tenant_id: tenant_id,
+          quantidade: (produtoDb.quantidade as number) - 2,
+          nome: '',
+        });
       }
 
       const venda = await prisma.venda.create({

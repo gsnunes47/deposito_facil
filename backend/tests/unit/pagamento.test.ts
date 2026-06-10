@@ -19,7 +19,7 @@ beforeAll(async () => {
     cliente.cliente_id,
     [
       {
-        produto_id: produto.produto_id,
+        id: produto.produto_id,
         quantidade: 2,
         valor_unitario: 1000,
       },
@@ -80,7 +80,7 @@ describe('Pagamento Domain', () => {
       'PIX',
       500,
     );
-    console.log(pagamentoNovo);
+    pagamentoNovo;
 
     const pagamentoDeletado = await pagamentoDomain.deletePagamento(
       Number(pagamentoNovo.pagamento_id),

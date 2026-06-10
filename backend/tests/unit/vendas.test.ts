@@ -54,6 +54,29 @@ describe('Venda Domain', () => {
       cliente.cliente_id,
       [
         {
+          id: produto1.produto_id,
+          quantidade: 2,
+          valor_unitario: 1000,
+        },
+        {
+          id: produto2.produto_id,
+          quantidade: 3,
+          valor_unitario: 1500,
+        },
+      ],
+      1,
+    );
+
+    vendaId = vendaNovo.venda_id as number;
+
+    expect(vendaNovo.code).toBe(200);
+  });
+
+  it('ao criar uma venda deve deduzir a quantidade do produto', async () => {
+    const vendaNovo = await vendaDomain.createVenda(
+      cliente.cliente_id,
+      [
+        {
           produto_id: produto1.produto_id,
           quantidade: 2,
           valor_unitario: 1000,
@@ -69,7 +92,13 @@ describe('Venda Domain', () => {
 
     vendaId = vendaNovo.venda_id as number;
 
-    expect(vendaNovo.code).toBe(200);
+    const produtoT = await produtoDomain.getProdutoById(produto1.id, 1)
+
+    if (!produtoT) {
+      throw Error
+    }
+
+    expect(produtoT.quantidade).toBe(-2);
   });
 
   // it('deve fechar uma venda', async () => {

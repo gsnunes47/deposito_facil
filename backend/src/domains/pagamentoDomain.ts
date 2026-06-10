@@ -18,7 +18,6 @@ class PagamentoDomain {
     valor: number,
   ) {
     try {
-
       let vendas = await vendaDomain.getVendasAbertas(tenant_id);
       const vendaDestino = vendas.find((venda) => venda.id === venda_id);
 

@@ -48,7 +48,7 @@ class ProdutoDomain {
     return produtos;
   }
 
-  private async getProdutoById(produtoId: number, tenantId: number) {
+  async getProdutoById(produtoId: number, tenantId: number) {
     const produto = await prisma.produto.findFirst({
       where: {
         id: produtoId,
