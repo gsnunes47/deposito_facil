@@ -18,23 +18,24 @@ class PagamentoDomain {
     valor: number,
   ) {
     try {
-      let vendas = await vendaDomain.getVendasAbertas(tenant_id);
-      const vendaDestino = vendas.find((venda) => venda.id === venda_id);
-
-      if (!vendaDestino) {
+      let vendaDestino = await vendaDomain.getVendaPagamentos(venda_id, tenant_id);
+      
+      if (!vendaDestino || vendaDestino.pago === true || vendaDestino.debito == undefined) {
         return {
           code: 400,
           message: 'Impossível adicionar um pagamento para esta venda',
         };
       }
 
-      if (vendaDestino.total - valor < 0) {
+      const debito = vendaDestino.debito - valor;
+      
+      if (debito < 0) {
         return {
           code: 400,
           message:
             'O pagamento deve ser igual ou menor que o valor total da venda',
         };
-      } else if (vendaDestino.total - valor > 0) {
+      } else if (debito > 0) {
         const pagamento = await prisma.pagamento.create({
           data: {
             venda_id: venda_id,
@@ -49,30 +50,35 @@ class PagamentoDomain {
           message: 'Pagamento created successfully',
           pagamento_id: pagamento.id,
         };
+      } else if (debito === 0) {
+        const pagamento = await prisma.pagamento.create({
+          data: {
+            venda_id: venda_id,
+            tenant_id: tenant_id,
+            forma_pagamento: forma_pagamento,
+            valor: valor,
+          },
+        });
+
+        const vendaAtt = await vendaDomain.updateVenda(
+          venda_id,
+          tenant_id,
+          true,
+          new Date(),
+        );
+
+        return {
+          code: 200,
+          message: 'Pagamento created successfully',
+          pagamento_id: pagamento.id,
+          venda: `Venda ${vendaAtt.venda_id} fechada.`,
+        };
+      } else {
+        return {
+          code: 400,
+          message: 'Error creating pagamento',
+        };
       }
-
-      const pagamento = await prisma.pagamento.create({
-        data: {
-          venda_id: venda_id,
-          tenant_id: tenant_id,
-          forma_pagamento: forma_pagamento,
-          valor: valor,
-        },
-      });
-
-      const vendaAtt = await vendaDomain.updateVenda(
-        venda_id,
-        tenant_id,
-        true,
-        new Date(),
-      );
-
-      return {
-        code: 200,
-        message: 'Pagamento created successfully',
-        pagamento_id: pagamento.id,
-        venda: `Venda ${vendaAtt.venda_id} fechada.`,
-      };
     } catch (error) {
       return {
         code: 400,

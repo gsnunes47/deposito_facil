@@ -23,11 +23,11 @@ export async function createVenda(request: Request, response: Response) {
   let produtosData: any[] = [];
 
   for (const [index, produto] of request.body.produtos.entries()) {
-    if (!produto.produto_id) {
+    if (!produto.id) {
       return response.status(400).send({
         error: `ID do produto é obrigatório para o produto na posição ${index}`,
       });
-    } else if (isNaN(Number(produto.produto_id))) {
+    } else if (isNaN(Number(produto.id))) {
       return response.status(400).send({
         error: `ID do produto deve ser um número para o produto na posição ${index}`,
       });
@@ -54,7 +54,7 @@ export async function createVenda(request: Request, response: Response) {
     }
 
     produtosData.push({
-      produto_id: produto.produto_id,
+      id: produto.id,
       quantidade: produto.quantidade,
       valor_unitario: produto.valor_unitario,
     });
@@ -77,12 +77,24 @@ export async function createVenda(request: Request, response: Response) {
 }
 
 export async function getVendasAbertas(request: Request, response: Response) {
-  let vendas = await vendaDomain.getVendasAbertas(request.user.tenantId);
+  const vendas = await vendaDomain.getVendasAbertas(request.user.tenantId);
   response.status(200).send(vendas);
 }
 
 export async function getVendasFechadas(request: Request, response: Response) {
-  let vendas = await vendaDomain.getVendasFechadas(request.user.tenantId);
+  const vendas = await vendaDomain.getVendasFechadas(request.user.tenantId);
+  response.status(200).send(vendas);
+}
+
+export async function getPagamentos(request: Request, response: Response) {
+
+  if (!request.params.id || isNaN(Number(request.params.id))) {
+    return response.status(400).send({
+      error: 'ID da venda é obrigatório e deve ser um número',
+    });
+  }
+
+  const vendas = await vendaDomain.getVendaPagamentos(Number(request.params.id), request.user.tenantId);
   response.status(200).send(vendas);
 }
 

@@ -17,7 +17,10 @@ class VendaDomain {
       for (const produto of produtos) {
         total += produto.quantidade * produto.valor_unitario;
 
-        const produtoDb = await produtoDomain.getProdutoById(produto.id, tenant_id);
+        const produtoDb = await produtoDomain.getProdutoById(
+          produto.id,
+          tenant_id,
+        );
 
         if (!produtoDb) {
           return {
@@ -100,6 +103,42 @@ class VendaDomain {
     });
 
     return vendas;
+  }
+
+  async getVendaPagamentos(venda_id: number, tenantId: number) {
+    const venda = await prisma.venda.findUnique({
+      where: {
+        id: venda_id,
+        tenant_id: tenantId,
+      },
+      select: {
+        id: true,
+        total: true,
+        pago: true,
+        pagamentos: true,
+      },
+    });
+
+    if (!venda) {
+      return {
+        code: 400,
+        message: 'Venda não encontrado',
+      };
+    }
+
+    let debito = venda.total;
+
+    for (const pagamento of venda.pagamentos) {
+      debito -= Number(pagamento.valor);
+    }
+
+    return {
+      id: venda.id,
+      total: venda.total,
+      debito: debito,
+      pago: venda.pago,
+      pagamentos: venda.pagamentos,
+    };
   }
 
   private async getVendaById(vendaId: number, tenantId: number) {

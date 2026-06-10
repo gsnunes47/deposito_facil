@@ -77,12 +77,12 @@ describe('Venda Domain', () => {
       cliente.cliente_id,
       [
         {
-          produto_id: produto1.produto_id,
+          id: produto1.produto_id,
           quantidade: 2,
           valor_unitario: 1000,
         },
         {
-          produto_id: produto2.produto_id,
+          id: produto2.produto_id,
           quantidade: 3,
           valor_unitario: 1500,
         },
@@ -92,13 +92,13 @@ describe('Venda Domain', () => {
 
     vendaId = vendaNovo.venda_id as number;
 
-    const produtoT = await produtoDomain.getProdutoById(produto1.id, 1)
+    const produtoT = await produtoDomain.getProdutoById(produto1.produto_id, 1);
 
     if (!produtoT) {
-      throw Error
+      throw Error;
     }
 
-    expect(produtoT.quantidade).toBe(-2);
+    expect(produtoT.quantidade).toBe(-4); //passou por 2 vendas
   });
 
   // it('deve fechar uma venda', async () => {

@@ -5,6 +5,7 @@ import authRouter from './routing/routers/authRouter.js';
 import produtosRouter from './routing/routers/produtosRouter.js';
 import vendaRouter from './routing/routers/vendaRouter.js';
 import clienteRouter from './routing/routers/clienteRouter.js';
+import pagamentoRouter from './routing/routers/pagamentoRouter.js';
 import usersRouter from './routing/routers/userRouter.js';
 import tenantRouter from './routing/routers/tenantRouter.js';
 import authMiddleware from './routing/middlewares/authMiddleware.js';
@@ -16,6 +17,9 @@ const PORT = 3000;
 app.use(express.json());
 app.use(cookieParser());
 
+//mantida por enquanto apenas para testes http
+app.use('/api/tenant', tenantRouter);
+
 //rota de login sem middleware de autenticação
 app.use('/api/login', authRouter);
 
@@ -26,6 +30,7 @@ app.use(authMiddleware.verify);
 app.use('/api/produtos', produtosRouter);
 app.use('/api/cliente', clienteRouter);
 app.use('/api/venda', vendaRouter);
+app.use('/api/pagamento', pagamentoRouter);
 
 app.listen(PORT, () => {
   console.log(`Rodando na porta: ${PORT}`);

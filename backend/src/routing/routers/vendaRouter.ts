@@ -10,6 +10,6 @@ router.get('/abertas', controllers.getVendasAbertas);
 
 router.get('/fechadas', controllers.getVendasFechadas);
 
-// router.put('/:id', controllers.updateVenda)
+router.get('/:id', controllers.getPagamentos)
 
 export default router;
