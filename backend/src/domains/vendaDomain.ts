@@ -1,6 +1,5 @@
 import prisma from '../repositories/db.js';
 import type { Venda } from '@prisma/client';
-import { getNextTenantId, getGlobalId } from '../helpers/globalIdHelper.js';
 
 interface clienteInterface {
   tenant_id: number;
@@ -12,14 +11,6 @@ interface clienteInterface {
 class VendaDomain {
   async createVenda(cliente_id: number, produtos: any, tenant_id: number) {
     try {
-      const novoId = await getNextTenantId(prisma.venda, tenant_id);
-
-      const clienteId = await getGlobalId(
-        prisma.cliente,
-        cliente_id,
-        tenant_id,
-      );
-
       let total = 0;
 
       for (const produto of produtos) {
@@ -28,8 +19,7 @@ class VendaDomain {
 
       const venda = await prisma.venda.create({
         data: {
-          id: novoId,
-          cliente_id: clienteId,
+          cliente_id: cliente_id,
           tenant_id: tenant_id,
           produtos: produtos,
           total: total,
@@ -117,7 +107,6 @@ class VendaDomain {
 
     const delVenda = await prisma.venda.delete({
       where: {
-        global_id: venda.global_id,
         id: vendaId,
         tenant_id: tenantId,
       },
@@ -146,7 +135,6 @@ class VendaDomain {
 
     const updatedVenda = await prisma.venda.update({
       where: {
-        global_id: existingVenda.global_id,
         id: id,
         tenant_id: tenant_id,
       },

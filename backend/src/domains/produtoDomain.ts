@@ -11,11 +11,9 @@ interface produtoInterface {
 class ProdutoDomain {
   async createProduto(name: string, tenant_id: number) {
     try {
-      const novoId = await getNextTenantId(prisma.produto, tenant_id);
 
       const produto = await prisma.produto.create({
         data: {
-          id: novoId,
           nome: name,
           tenant_id: tenant_id,
         },
@@ -73,7 +71,6 @@ class ProdutoDomain {
 
     const delProduto = await prisma.produto.delete({
       where: {
-        global_id: produto.global_id,
         id: produtoId,
         tenant_id: tenantId,
       },
@@ -100,7 +97,6 @@ class ProdutoDomain {
 
     const updatedProduto = await prisma.produto.update({
       where: {
-        global_id: existingProduto.global_id,
         id: produto.id,
         tenant_id: produto.tenant_id,
       },

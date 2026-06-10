@@ -1,6 +1,5 @@
 import prisma from '../repositories/db.js';
 import type { FormaPagamento, Pagamento } from '@prisma/client';
-import { getNextTenantId, getGlobalId } from '../helpers/globalIdHelper.js';
 import vendaDomain from './vendaDomain.js';
 
 interface pagamentoInterface {
@@ -19,9 +18,6 @@ class PagamentoDomain {
     valor: number,
   ) {
     try {
-      const novoId = await getNextTenantId(prisma.pagamento, tenant_id);
-
-      const vendaId = await getGlobalId(prisma.venda, venda_id, tenant_id);
 
       let vendas = await vendaDomain.getVendasAbertas(tenant_id);
       const vendaDestino = vendas.find((venda) => venda.id === venda_id);
@@ -42,8 +38,7 @@ class PagamentoDomain {
       } else if (vendaDestino.total - valor > 0) {
         const pagamento = await prisma.pagamento.create({
           data: {
-            id: novoId,
-            venda_id: vendaId,
+            venda_id: venda_id,
             tenant_id: tenant_id,
             forma_pagamento: forma_pagamento,
             valor: valor,
@@ -59,8 +54,7 @@ class PagamentoDomain {
 
       const pagamento = await prisma.pagamento.create({
         data: {
-          id: novoId,
-          venda_id: vendaId,
+          venda_id: venda_id,
           tenant_id: tenant_id,
           forma_pagamento: forma_pagamento,
           valor: valor,
@@ -112,7 +106,6 @@ class PagamentoDomain {
 
     const delPagamento = await prisma.pagamento.delete({
       where: {
-        global_id: pagamento.global_id,
         id: pagamentoId,
         tenant_id: tenantId,
       },

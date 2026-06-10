@@ -16,11 +16,9 @@ class ClienteDomain {
     documento?: string | null,
   ) {
     try {
-      const novoId = await getNextTenantId(prisma.cliente, tenant_id);
 
       const cliente = await prisma.cliente.create({
         data: {
-          id: novoId,
           nome: name,
           documento: documento ?? '',
           tenant_id: tenant_id,
@@ -79,7 +77,6 @@ class ClienteDomain {
 
     const delCliente = await prisma.cliente.delete({
       where: {
-        global_id: cliente.global_id,
         id: clienteId,
         tenant_id: tenantId,
       },
@@ -106,7 +103,6 @@ class ClienteDomain {
 
     const updatedCliente = await prisma.cliente.update({
       where: {
-        global_id: existingCliente.global_id,
         id: cliente.id,
         tenant_id: cliente.tenant_id,
       },
