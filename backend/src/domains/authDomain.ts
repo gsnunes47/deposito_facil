@@ -10,7 +10,7 @@ class authDomain {
         tenant_id: parseInt(UserInput.tenantId),
       };
 
-      const userDb = await prisma.user.findUnique({
+      const userDb = await prisma.user.findFirst({
         where: userQuery,
       });
 
