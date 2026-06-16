@@ -18,19 +18,19 @@ app.use(express.json());
 app.use(cookieParser());
 
 //mantida por enquanto apenas para testes http
-app.use('/api/tenant', tenantRouter);
+app.use('/tenant', tenantRouter);
 
 //rota de login sem middleware de autenticação
-app.use('/api/login', authRouter);
+app.use('/login', authRouter);
 
 //middlewares
 app.use(authMiddleware.verify);
 
 // routes
-app.use('/api/produtos', produtosRouter);
-app.use('/api/cliente', clienteRouter);
-app.use('/api/venda', vendaRouter);
-app.use('/api/pagamento', pagamentoRouter);
+app.use('/produtos', produtosRouter);
+app.use('/cliente', clienteRouter);
+app.use('/venda', vendaRouter);
+app.use('/pagamento', pagamentoRouter);
 
 app.listen(PORT, () => {
   console.log(`Rodando na porta: ${PORT}`);
