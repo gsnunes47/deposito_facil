@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routing/routers/authRouter.js';
 import produtosRouter from './routing/routers/produtosRouter.js';
@@ -13,7 +14,18 @@ import roleMiddleware from './routing/middlewares/roleMiddleware.js';
 
 //configuração
 const app = express();
-const PORT = 3000;
+const PORT = 8080;
+
+app.use(
+  cors({
+    origin: [
+      'http://localhost:3000',
+      'https://depositofacil.app.br',
+    ],
+    credentials: true,
+  }),
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
