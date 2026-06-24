@@ -29,9 +29,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-//mantida por enquanto apenas para testes http
-app.use('/tenant', tenantRouter);
-
 //rota de login sem middleware de autenticação
 app.use('/login', authRouter);
 
