@@ -1,5 +1,10 @@
 node_modules
 .env
+.env.local
+.env.production
+src/generated/
+.vscode/
+*.tsbuildinfo
+.next
 build
-/backend/scripts
-.vscode
+scripts
