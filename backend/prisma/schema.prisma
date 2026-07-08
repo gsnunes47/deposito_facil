@@ -7,6 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum FormaPagamento {
+  DINHEIRO
+  PIX
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+}
+
 model Tenants {
   id Int @id @default(autoincrement())
   name String @unique
@@ -22,6 +29,13 @@ model User {
   access_level String
   tenant_id Int
   tenant Tenants @relation(fields: [tenant_id], references: [id])
+}
+
+model Despesa {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  descricao String
+  valor Int 
 }
 
 model Produto {
@@ -54,13 +68,6 @@ model Venda {
   // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
 }
 
-enum FormaPagamento {
-  DINHEIRO
-  PIX
-  CARTAO_CREDITO
-  CARTAO_DEBITO
-}
-
 model Pagamento {
   id Int @id @default(autoincrement())
   tenant_id Int
@@ -69,4 +76,37 @@ model Pagamento {
   data_pagamento DateTime @default(now())
   forma_pagamento FormaPagamento
   venda Venda @relation(fields: [venda_id], references: [id])
+}
+
+model Fornecedor {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  nome String?
+  documento String? @default("")
+  encomendas Encomenda[]
+}
+
+model Encomenda {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  fornecedor_id Int
+  produtos Json @db.Json
+  total Int //centavos
+  data DateTime @default(now())
+  data_quitacao DateTime?
+  pago Boolean @default(false)
+  pagamentos PagamentoEncomenda[]
+  fornecedor Fornecedor @relation(fields: [fornecedor_id], references: [id])
+  // produtos deve ser um array de transações:
+  // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
+}
+
+model PagamentoEncomenda {
+  id Int @id @default(autoincrement())
+  tenant_id Int
+  encomenda_id Int
+  valor Int? @default(1) //centavos
+  data_pagamento DateTime @default(now())
+  forma_pagamento FormaPagamento
+  encomenda Encomenda @relation(fields: [encomenda_id], references: [id])
 }
