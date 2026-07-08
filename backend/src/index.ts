@@ -7,6 +7,7 @@ import produtosRouter from './routing/routers/produtosRouter.js';
 import vendaRouter from './routing/routers/vendaRouter.js';
 import clienteRouter from './routing/routers/clienteRouter.js';
 import pagamentoRouter from './routing/routers/pagamentoRouter.js';
+import despesaRouter from './routing/routers/despesaRouter.js';
 import usersRouter from './routing/routers/userRouter.js';
 import tenantRouter from './routing/routers/tenantRouter.js';
 import authMiddleware from './routing/middlewares/authMiddleware.js';
@@ -40,6 +41,7 @@ app.use('/produtos', produtosRouter);
 app.use('/cliente', clienteRouter);
 app.use('/venda', vendaRouter);
 app.use('/pagamento', pagamentoRouter);
+app.use('/despesa', despesaRouter);
 
 app.listen(PORT, () => {
   console.log(`Rodando na porta: ${PORT}`);
