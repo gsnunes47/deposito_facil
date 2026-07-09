@@ -16,7 +16,7 @@ export async function createPagamento(request: Request, response: Response) {
       .status(400)
       .send({ error: 'Id da venda é obrigatório e deve ser um número' });
   }
-  
+
   if (
     !request.body.forma_pagamento ||
     !Object.values(FormaPagamento).includes(request.body.forma_pagamento)
@@ -26,7 +26,11 @@ export async function createPagamento(request: Request, response: Response) {
     });
   }
 
-  if (!request.body.valor || isNaN(Number(request.body.valor ||Number(request.body.valor) > 0))) {
+  if (
+    !request.body.valor ||
+    isNaN(Number(request.body.valor)) ||
+    Number(request.body.valor) <= 0
+  ) {
     return response
       .status(400)
       .send({ error: 'Valor é obrigatório e deve ser um número maior que 0.' });
@@ -36,16 +40,14 @@ export async function createPagamento(request: Request, response: Response) {
     request.body.venda_id,
     user.tenantId,
     request.body.forma_pagamento,
-    request.body.valor
+    request.body.valor,
   );
 
   if (pagamento.code === 200) {
-    return response
-      .status(200)
-      .send({
-        message: pagamento.message,
-        pagamento_id: pagamento.pagamento_id,
-      });
+    return response.status(200).send({
+      message: pagamento.message,
+      pagamento_id: pagamento.pagamento_id,
+    });
   } else {
     return response
       .status(400)
