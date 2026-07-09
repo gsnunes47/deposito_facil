@@ -73,6 +73,16 @@ describe('Venda Domain', () => {
   });
 
   it('ao criar uma venda deve deduzir a quantidade do produto', async () => {
+    const produto1PreVenda = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+
+    if (!produto1PreVenda?.quantidade) {
+      throw Error;
+    }
+
     const vendaNovo = await vendaDomain.createVenda(
       cliente.cliente_id,
       [
@@ -92,13 +102,16 @@ describe('Venda Domain', () => {
 
     vendaId = vendaNovo.venda_id as number;
 
-    const produtoT = await produtoDomain.getProdutoById(produto1.produto_id, 1);
+    const produto1PosVenda = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
 
-    if (!produtoT) {
+    if (!produto1PosVenda) {
       throw Error;
     }
 
-    expect(produtoT.quantidade).toBe(-4); //passou por 2 vendas
+    expect(produto1PosVenda.quantidade).toBe(produto1PreVenda.quantidade - 2); //passou por 2 vendas
   });
 
   // it('deve fechar uma venda', async () => {

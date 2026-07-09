@@ -33,7 +33,7 @@ class VendaDomain {
         await produtoDomain.updateProduto({
           id: produto.id,
           tenant_id: tenant_id,
-          quantidade: (produtoDb.quantidade as number) - 2,
+          quantidade: (produtoDb.quantidade as number) - produto.quantidade,
           nome: '',
         });
       }
