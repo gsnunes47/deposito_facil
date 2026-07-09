@@ -11,7 +11,6 @@ interface produtoInterface {
 class ProdutoDomain {
   async createProduto(name: string, tenant_id: number) {
     try {
-
       const produto = await prisma.produto.create({
         data: {
           nome: name,
@@ -101,7 +100,7 @@ class ProdutoDomain {
         tenant_id: produto.tenant_id,
       },
       data: {
-        nome: produto.nome,
+        nome: produto.nome || existingProduto.nome,
         quantidade: produto.quantidade,
       },
     });
