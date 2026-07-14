@@ -57,6 +57,10 @@
   box-shadow: none;
 }
 
+.formularioComDocumento {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
 .campoNome {
   min-width: 0;
 }
@@ -204,6 +208,10 @@
   }
 
   .formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .formularioComDocumento {
     grid-template-columns: 1fr;
   }
 

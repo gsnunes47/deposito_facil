@@ -70,7 +70,7 @@ export async function updateCliente(request: Request, response: Response) {
   const clienteData = {
     id: Number(clienteId),
     nome: (request.body.nome as string) || null,
-    documento: (request.body.documento as string) || null,
+    documento: (request.body.documento as string) ?? '',
     tenant_id: request.user.tenantId,
   };
 

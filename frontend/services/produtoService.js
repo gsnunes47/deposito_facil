@@ -4,10 +4,10 @@ export function listarProdutos() {
   return apiRequest('/produtos');
 }
 
-export function cadastrarProduto(nome) {
+export function cadastrarProduto(produto) {
   return apiRequest('/produtos', {
     method: 'POST',
-    body: JSON.stringify({ nome }),
+    body: JSON.stringify(produto),
   });
 }
 

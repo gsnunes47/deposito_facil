@@ -68,7 +68,7 @@ export async function deleteFornecedor(request: Request, response: Response) {
 
 export async function updateFornecedor(request: Request, response: Response) {
   const fornecedorId = request.params.id;
-  const fornecedorNome = request.params.nome;
+  const fornecedorNome = request.body.nome;
 
   if (!fornecedorId) {
     return response
@@ -80,7 +80,7 @@ export async function updateFornecedor(request: Request, response: Response) {
       .send({ error: 'ID do fornecedor deve ser um número' });
   }
 
-  if (!fornecedorNome) {
+  if (!fornecedorNome || fornecedorNome.trim() === '') {
     return response
       .status(400)
       .send({ error: 'Nome do fornecedor é obrigatório' });
@@ -88,7 +88,7 @@ export async function updateFornecedor(request: Request, response: Response) {
   const fornecedorData = {
     id: Number(fornecedorId),
     nome: `${fornecedorNome}` as string,
-    documento: (request.body.documento as string) || null,
+    documento: (request.body.documento as string) ?? '',
     tenant_id: request.user.tenantId,
   };
 
