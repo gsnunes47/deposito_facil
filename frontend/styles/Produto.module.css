@@ -1,0 +1,218 @@
+.pagina {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 48px 0 64px;
+  color: #1f2937;
+}
+
+.cabecalho {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.cabecalho h1 {
+  margin: 4px 0 8px;
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.cartao {
+  margin-bottom: 24px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.tituloSecao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.tituloSecao h2 {
+  margin-bottom: 4px;
+  color: #1f2937;
+  font-size: 1.2rem;
+  text-align: left;
+  text-shadow: none;
+}
+
+.tituloSecao p {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.formulario {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.campoNome {
+  min-width: 0;
+}
+
+.formulario label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.formulario input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #1f2937;
+  font: inherit;
+}
+
+.formulario input:focus {
+  border-color: #16a34a;
+  outline: 3px solid rgba(22, 163, 74, 0.14);
+}
+
+.acoesFormulario,
+.acoesTabela {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.botaoPrimario,
+.botaoSecundario,
+.botaoEditar,
+.botaoExcluir {
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.botaoPrimario {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.botaoSecundario,
+.botaoEditar {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.botaoExcluir {
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.botaoPrimario:hover {
+  background: #166534;
+}
+
+.botaoSecundario:hover,
+.botaoEditar:hover {
+  background: #f8fafc;
+}
+
+.botaoExcluir:hover {
+  background: #ffe4e6;
+}
+
+.botaoPrimario:disabled,
+.botaoSecundario:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.mensagem {
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border: 1px solid;
+  border-radius: 9px;
+}
+
+.sucesso {
+  border-color: #86efac;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.erro {
+  border-color: #fda4af;
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.tabelaContainer {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+  padding: 13px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  text-align: left;
+}
+
+.tabela th {
+  color: #64748b;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tabela tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.colunaAcoes {
+  text-align: right !important;
+}
+
+.estadoLista {
+  padding: 32px 0;
+  color: #64748b;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .pagina {
+    width: min(100% - 20px, 1100px);
+    padding-top: 28px;
+  }
+
+  .cartao {
+    padding: 18px;
+  }
+
+  .formulario {
+    grid-template-columns: 1fr;
+  }
+
+  .tituloSecao {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acoesFormulario {
+    justify-content: flex-start;
+  }
+}

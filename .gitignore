@@ -8,3 +8,5 @@ src/generated/
 .next
 build
 scripts
+ai-docs
+AGENTS.md

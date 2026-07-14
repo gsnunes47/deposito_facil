@@ -8,6 +8,13 @@ interface produtoInterface {
   tenant_id: number;
 }
 
+interface updateProdutoInterface {
+  id: number;
+  nome: string;
+  quantidade?: number;
+  tenant_id: number;
+}
+
 class ProdutoDomain {
   async createProduto(name: string, tenant_id: number) {
     try {
@@ -81,7 +88,7 @@ class ProdutoDomain {
     };
   }
 
-  async updateProduto(produto: produtoInterface) {
+  async updateProduto(produto: updateProdutoInterface) {
     const existingProduto = await this.getProdutoById(
       produto.id,
       produto.tenant_id,
@@ -100,8 +107,11 @@ class ProdutoDomain {
         tenant_id: produto.tenant_id,
       },
       data: {
-        nome: produto.nome || existingProduto.nome,
-        quantidade: produto.quantidade,
+        nome: produto.nome,
+        ...(produto.quantidade !== undefined && {
+          // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona.
+          quantidade: produto.quantidade,
+        }),
       },
     });
 

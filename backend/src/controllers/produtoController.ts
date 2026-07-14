@@ -1,7 +1,5 @@
-import prisma from '../repositories/db.js';
 import type { Request, Response } from 'express';
 import produtoDomain from '../domains/produtoDomain.js';
-import { Prisma } from '@prisma/client/scripts/default-index.js';
 
 export async function createProduto(request: Request, response: Response) {
   const user = request.user;
@@ -74,21 +72,25 @@ export async function updateProduto(request: Request, response: Response) {
       .send({ error: 'Nome do produto é obrigatório' });
   }
 
+  const quantidadeInformada =
+    request.body.quantidade != null && request.body.quantidade !== '';
+
   if (
-    request.body.quantidade == null ||
-    request.body.quantidade === '' ||
+    quantidadeInformada &&
     isNaN(Number(request.body.quantidade))
   ) {
     return response.status(400).send({
-      error: 'Quantidade do produto é obrigatória e deve ser um número',
+      error: 'Quantidade do produto deve ser um número',
     });
   }
 
   const produtoData = {
     id: Number(produtoId),
     nome: request.body.nome,
-    quantidade: request.body.quantidade,
     tenant_id: request.user.tenantId,
+    ...(quantidadeInformada && {
+      quantidade: Number(request.body.quantidade),
+    }),
   };
 
   const updatedProduto = await produtoDomain.updateProduto(produtoData);
