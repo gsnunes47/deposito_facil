@@ -37,10 +37,10 @@ export async function createPagamento(request: Request, response: Response) {
   }
 
   const pagamento = await pagamentoDomain.createPagamento(
-    request.body.venda_id,
+    Number(request.body.venda_id),
     user.tenantId,
     request.body.forma_pagamento,
-    request.body.valor,
+    Number(request.body.valor),
   );
 
   if (pagamento.code === 200) {

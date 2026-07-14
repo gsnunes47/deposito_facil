@@ -10,7 +10,7 @@ interface produtoInterface {
 
 interface updateProdutoInterface {
   id: number;
-  nome: string;
+  nome?: string;
   quantidade?: number;
   tenant_id: number;
 }
@@ -107,7 +107,9 @@ class ProdutoDomain {
         tenant_id: produto.tenant_id,
       },
       data: {
-        nome: produto.nome,
+        ...(produto.nome !== undefined && {
+          nome: produto.nome,
+        }),
         ...(produto.quantidade !== undefined && {
           // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona.
           quantidade: produto.quantidade,
