@@ -10,7 +10,12 @@ interface clienteInterface {
 }
 
 class VendaDomain {
-  async createVenda(cliente_id: number, produtos: any, tenant_id: number) {
+  async createVenda(
+    cliente_id: number,
+    produtos: any,
+    tenant_id: number,
+    data?: Date,
+  ) {
     try {
       let total = 0;
 
@@ -34,7 +39,6 @@ class VendaDomain {
           id: produto.id,
           tenant_id: tenant_id,
           quantidade: (produtoDb.quantidade as number) - produto.quantidade,
-          nome: '',
         });
       }
 
@@ -44,6 +48,7 @@ class VendaDomain {
           tenant_id: tenant_id,
           produtos: produtos,
           total: total,
+          ...(data && { data }),
         },
       });
 
@@ -162,16 +167,24 @@ class VendaDomain {
       };
     }
 
-    const delVenda = await prisma.venda.delete({
-      where: {
-        id: vendaId,
-        tenant_id: tenantId,
-      },
-    });
+    await prisma.$transaction([
+      prisma.pagamento.deleteMany({
+        where: {
+          venda_id: vendaId,
+          tenant_id: tenantId,
+        },
+      }),
+      prisma.venda.delete({
+        where: {
+          id: vendaId,
+          tenant_id: tenantId,
+        },
+      }),
+    ]);
 
     return {
       code: 200,
-      message: `Venda ${delVenda.id} deletado com sucesso`,
+      message: 'Venda ' + venda.id + ' deletada com sucesso',
     };
   }
 
