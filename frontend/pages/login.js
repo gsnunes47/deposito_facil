@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useState,  } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
+  const router = useRouter();
+
   const [login, setUsername] = useState('');
   const [password, setSenha] = useState('');
 
@@ -32,6 +35,8 @@ export default function Login() {
       const result = await response.json();
 
       console.log('Success:', result);
+    
+      router.push('/');
     } catch (error) {
       alert(error);
     }
@@ -39,7 +44,7 @@ export default function Login() {
 
   return (
     <div>
-      <form method="POST" className="form-login" onSubmit={handleSubmit}>
+      <form method="POST"  style={{marginTop: "100px"}} className="form-login" onSubmit={handleSubmit}>
         <label>Usuário</label>
         <input
           type="text"
