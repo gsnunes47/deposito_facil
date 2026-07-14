@@ -4,7 +4,6 @@ function Home() {
   return (
     <>
       <Navbar />
-      <h1>Olá!</h1>
     </>
   );
 }

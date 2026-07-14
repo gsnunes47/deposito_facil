@@ -6,6 +6,8 @@ const router = Router();
 
 router.post('/', controllers.createVenda);
 
+router.delete('/:id', controllers.deleteVenda);
+
 router.get('/abertas', controllers.getVendasAbertas);
 
 router.get('/fechadas', controllers.getVendasFechadas);

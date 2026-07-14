@@ -5,16 +5,6 @@
   color: #1f2937;
 }
 
-.cabecalho {
-  margin-bottom: 28px;
-  text-align: center;
-}
-
-.cabecalho h1 {
-  margin: 4px 0 8px;
-  font-size: clamp(2rem, 5vw, 3rem);
-}
-
 .cartao {
   margin-bottom: 24px;
   padding: 24px;

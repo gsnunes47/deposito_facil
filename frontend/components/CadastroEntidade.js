@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
+import TituloPagina from './TituloPagina';
 import styles from '../styles/Cadastro.module.css';
 
 const FORMULARIO_INICIAL = { id: null, nome: '', documento: '' };
@@ -103,9 +104,7 @@ export default function CadastroEntidade({
     <>
       <Navbar />
       <main className={styles.pagina}>
-        <header className={styles.cabecalho}>
-          <h1>{titulo}</h1>
-        </header>
+        <TituloPagina>{titulo}</TituloPagina>
 
         {mensagem && (
           <div className={`${styles.mensagem} ${styles[mensagem.tipo]}`}>

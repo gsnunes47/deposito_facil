@@ -1,0 +1,302 @@
+import { useEffect, useMemo, useState } from 'react';
+import Navbar from '../../components/Navbar';
+import TituloPagina from '../../components/TituloPagina';
+import RegistroVendaCard, {
+  calcularDebito,
+} from '../../components/RegistroVendaCard';
+import { listarClientes } from '../../services/clienteService';
+import { excluirPagamento, registrarPagamento } from '../../services/pagamentoService';
+import { listarProdutos } from '../../services/produtoService';
+import {
+  excluirVenda,
+  listarVendasAbertas,
+  listarVendasFechadas,
+} from '../../services/vendaService';
+import styles from '../../styles/RegistroVendas.module.css';
+
+export default function RegistroVendas() {
+  const [clientes, setClientes] = useState([]);
+  const [produtos, setProdutos] = useState([]);
+  const [vendasAbertas, setVendasAbertas] = useState([]);
+  const [vendasFechadas, setVendasFechadas] = useState([]);
+  const [clienteId, setClienteId] = useState('');
+  const [carregando, setCarregando] = useState(true);
+  const [mensagem, setMensagem] = useState(null);
+  const [vendaPagamento, setVendaPagamento] = useState(null);
+  const [pagamento, setPagamento] = useState({
+    valor: '',
+    forma_pagamento: '',
+  });
+  const [salvandoPagamento, setSalvandoPagamento] = useState(false);
+
+  async function carregarVendas() {
+    const [abertas, fechadas] = await Promise.all([
+      listarVendasAbertas(),
+      listarVendasFechadas(),
+    ]);
+
+    setVendasAbertas(abertas);
+    setVendasFechadas(fechadas);
+  }
+
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        const [clientesCarregados, produtosCarregados] = await Promise.all([
+          listarClientes(),
+          listarProdutos(),
+        ]);
+
+        setClientes(clientesCarregados);
+        setProdutos(produtosCarregados);
+        await carregarVendas();
+      } catch (error) {
+        setMensagem({ tipo: 'erro', texto: error.message });
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    carregarDados();
+  }, []);
+
+  const produtosPorId = useMemo(
+    () =>
+      Object.fromEntries(
+        produtos.map((produto) => [produto.id, produto]),
+      ),
+    [produtos],
+  );
+
+  const vendasAbertasFiltradas = vendasAbertas.filter(
+    (venda) => String(venda.cliente_id) === clienteId,
+  );
+  const vendasFechadasFiltradas = vendasFechadas.filter(
+    (venda) => String(venda.cliente_id) === clienteId,
+  );
+
+  function abrirPagamento(venda) {
+    setVendaPagamento(venda);
+    setPagamento({ valor: '', forma_pagamento: '' });
+  }
+
+  function fecharPagamento() {
+    if (salvandoPagamento) return;
+    setVendaPagamento(null);
+  }
+
+  async function adicionarPagamento(event) {
+    event.preventDefault();
+    setMensagem(null);
+
+    const valor = Math.round(Number(pagamento.valor) * 100);
+    const debito = calcularDebito(vendaPagamento);
+
+    if (!Number.isFinite(valor) || valor <= 0) {
+      setMensagem({ tipo: 'erro', texto: 'Informe um valor maior que zero.' });
+      return;
+    }
+
+    if (valor > debito) {
+      setMensagem({
+        tipo: 'erro',
+        texto: 'O pagamento não pode ser maior que o valor a pagar.',
+      });
+      return;
+    }
+
+    if (valor === debito && !window.confirm('Este pagamento fechará a venda. Deseja continuar?')) {
+      return;
+    }
+
+    setSalvandoPagamento(true);
+
+    try {
+      await registrarPagamento({
+        venda_id: vendaPagamento.id,
+        valor,
+        forma_pagamento: pagamento.forma_pagamento,
+      });
+      await carregarVendas();
+      setVendaPagamento(null);
+      setMensagem({ tipo: 'sucesso', texto: 'Pagamento adicionado.' });
+    } catch (error) {
+      setMensagem({ tipo: 'erro', texto: error.message });
+    } finally {
+      setSalvandoPagamento(false);
+    }
+  }
+
+  async function removerPagamento(pagamentoSelecionado) {
+    if (!window.confirm('Você tem certeza que deseja excluir este pagamento?')) {
+      return;
+    }
+
+    try {
+      await excluirPagamento(pagamentoSelecionado.id);
+      await carregarVendas();
+      setMensagem({ tipo: 'sucesso', texto: 'Pagamento excluído.' });
+    } catch (error) {
+      setMensagem({ tipo: 'erro', texto: error.message });
+    }
+  }
+
+  async function removerVenda(venda) {
+    if (!window.confirm('Tem certeza que deseja deletar esta venda?')) {
+      return;
+    }
+
+    try {
+      await excluirVenda(venda.id);
+      await carregarVendas();
+      setMensagem({ tipo: 'sucesso', texto: 'Venda deletada.' });
+    } catch (error) {
+      setMensagem({ tipo: 'erro', texto: error.message });
+    }
+  }
+
+  return (
+    <>
+      <Navbar />
+
+      <main className={styles.pagina}>
+        <TituloPagina>Registro de Vendas</TituloPagina>
+
+        {mensagem && (
+          <div className={`${styles.mensagem} ${styles[mensagem.tipo]}`}>
+            {mensagem.texto}
+          </div>
+        )}
+
+        <section className={styles.filtro}>
+          <label htmlFor="cliente">Cliente</label>
+          <select
+            id="cliente"
+            value={clienteId}
+            onChange={(event) => setClienteId(event.target.value)}
+            disabled={carregando}
+          >
+            <option value="">Selecione um cliente</option>
+            {clientes.map((cliente) => (
+              <option key={cliente.id} value={cliente.id}>
+                {cliente.nome}
+              </option>
+            ))}
+          </select>
+        </section>
+
+        {carregando ? (
+          <p className={styles.estado}>Carregando vendas...</p>
+        ) : !clienteId ? (
+          <p className={styles.estado}>Selecione um cliente para visualizar as vendas.</p>
+        ) : (
+          <>
+            <section className={styles.secao}>
+              <h2>Vendas</h2>
+              {vendasAbertasFiltradas.length === 0 ? (
+                <p className={styles.estado}>Nenhuma venda aberta.</p>
+              ) : (
+                vendasAbertasFiltradas.map((venda) => (
+                  <RegistroVendaCard
+                    key={venda.id}
+                    venda={venda}
+                    produtosPorId={produtosPorId}
+                    onAdicionarPagamento={abrirPagamento}
+                    onExcluirPagamento={removerPagamento}
+                    onExcluirVenda={removerVenda}
+                  />
+                ))
+              )}
+            </section>
+
+            <section className={styles.secao}>
+              <h2>Vendas Fechadas</h2>
+              {vendasFechadasFiltradas.length === 0 ? (
+                <p className={styles.estado}>Nenhuma venda fechada.</p>
+              ) : (
+                vendasFechadasFiltradas.map((venda) => (
+                  <RegistroVendaCard
+                    key={venda.id}
+                    venda={venda}
+                    produtosPorId={produtosPorId}
+                    fechada
+                  />
+                ))
+              )}
+            </section>
+          </>
+        )}
+      </main>
+
+      {vendaPagamento && (
+        <div className={styles.fundoModal} onMouseDown={fecharPagamento}>
+          <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-pagamento"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              className={styles.fecharModal}
+              type="button"
+              onClick={fecharPagamento}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+
+            <h2 id="titulo-pagamento">Adicionar pagamento</h2>
+            <p>
+              A pagar: <strong>{new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }).format(calcularDebito(vendaPagamento) / 100)}</strong>
+            </p>
+
+            <form onSubmit={adicionarPagamento}>
+              <label htmlFor="valor">Valor</label>
+              <input
+                id="valor"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={pagamento.valor}
+                onChange={(event) =>
+                  setPagamento((atual) => ({
+                    ...atual,
+                    valor: event.target.value,
+                  }))
+                }
+                required
+              />
+
+              <label htmlFor="forma-pagamento">Forma de pagamento</label>
+              <select
+                id="forma-pagamento"
+                value={pagamento.forma_pagamento}
+                onChange={(event) =>
+                  setPagamento((atual) => ({
+                    ...atual,
+                    forma_pagamento: event.target.value,
+                  }))
+                }
+                required
+              >
+                <option value="">Selecione</option>
+                <option value="DINHEIRO">Dinheiro</option>
+                <option value="PIX">Pix</option>
+                <option value="CARTAO_CREDITO">Cartão de crédito</option>
+                <option value="CARTAO_DEBITO">Cartão de débito</option>
+              </select>
+
+              <button type="submit" disabled={salvandoPagamento}>
+                {salvandoPagamento ? 'Adicionando...' : 'Adicionar pagamento'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
