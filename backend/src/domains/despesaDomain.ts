@@ -40,8 +40,8 @@ class DespesaDomain {
       },
       select: {
         id: true,
-        nome: true,
-        quantidade: true,
+        descricao: true,
+        valor: true,
       },
     });
 
