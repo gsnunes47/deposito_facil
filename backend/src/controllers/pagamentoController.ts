@@ -55,6 +55,43 @@ export async function createPagamento(request: Request, response: Response) {
   }
 }
 
+export async function quitarVendas(request: Request, response: Response) {
+  const vendaIds = request.body.venda_ids;
+
+  if (
+    !Array.isArray(vendaIds) ||
+    vendaIds.length === 0 ||
+    vendaIds.some(
+      (id) => !Number.isInteger(Number(id)) || Number(id) <= 0,
+    )
+  ) {
+    return response.status(400).send({
+      error: 'Informe ao menos uma venda válida para quitar.',
+    });
+  }
+
+  if (
+    !request.body.forma_pagamento ||
+    !Object.values(FormaPagamento).includes(request.body.forma_pagamento)
+  ) {
+    return response.status(400).send({
+      error: 'Forma de pagamento inválida.',
+    });
+  }
+
+  const resultado = await pagamentoDomain.quitarVendas(
+    vendaIds.map(Number),
+    request.user.tenantId,
+    request.body.forma_pagamento,
+  );
+
+  return response.status(resultado.code).send({
+    message: resultado.message,
+    quantidade: resultado.quantidade,
+    valor_total: resultado.valor_total,
+  });
+}
+
 export async function deletePagamento(request: Request, response: Response) {
   const pagamentoId = request.params.id;
 

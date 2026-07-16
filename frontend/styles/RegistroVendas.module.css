@@ -86,6 +86,69 @@
   backdrop-filter: blur(6px);
 }
 
+.cabecalhoAbertas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.cabecalhoAbertas h2 {
+  margin: 0;
+}
+
+.selecionarTodas,
+.seletorVenda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #475569;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.selecionarTodas input,
+.seletorVenda input {
+  width: 17px;
+  height: 17px;
+  accent-color: #496781;
+}
+
+.barraQuitacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: #40566d;
+}
+
+.barraQuitacao div {
+  display: grid;
+  gap: 3px;
+}
+
+.barraQuitacao span {
+  color: #dbe5ed;
+  font-size: 0.88rem;
+}
+
+.barraQuitacao button {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  color: #26384b;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .secao h2 {
   margin-bottom: 18px;
   color: #1f2937;
@@ -94,6 +157,19 @@
 
 .venda {
   margin-bottom: 18px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.vendaSelecionada {
+  border-color: #6f8ca7;
+  box-shadow: 0 0 0 3px rgba(73, 103, 129, 0.13);
+}
+
+.seletorVenda {
+  width: fit-content;
+  margin-bottom: 14px;
 }
 
 .venda h3 {
@@ -132,6 +208,12 @@
   cursor: pointer;
   font: inherit;
   font-weight: 600;
+}
+
+.acoes .botaoQuitar {
+  border-color: #496781;
+  background: #496781;
+  color: #ffffff;
 }
 
 .acoes .botaoPerigo {
@@ -254,8 +336,8 @@
 .modal form button {
   width: 100%;
   margin-top: 18px;
-  border-color: #15803d;
-  background: #15803d;
+  border-color: #496781;
+  background: #496781;
   color: #ffffff;
 }
 
@@ -286,6 +368,16 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .cabecalhoAbertas,
+  .barraQuitacao {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .barraQuitacao button {
+    width: 100%;
   }
 
   .pagamentos li {

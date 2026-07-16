@@ -42,7 +42,10 @@ export default function RegistroVendaCard({
   venda,
   produtosPorId,
   fechada = false,
+  selecionada = false,
+  onSelecionar,
   onAdicionarPagamento,
+  onQuitarVenda,
   onExcluirPagamento,
   onExcluirVenda,
 }) {
@@ -51,7 +54,19 @@ export default function RegistroVendaCard({
   const ultimoPagamento = pagamentos[pagamentos.length - 1];
 
   return (
-    <article className={styles.venda}>
+    <article
+      className={`${styles.venda} ${selecionada ? styles.vendaSelecionada : ''}`}
+    >
+      {!fechada && (
+        <label className={styles.seletorVenda}>
+          <input
+            type="checkbox"
+            checked={selecionada}
+            onChange={() => onSelecionar(venda.id)}
+          />
+          Selecionar venda
+        </label>
+      )}
       {fechada && (
         <p className={styles.dataPagamento}>
           Pago em: {formatarData(ultimoPagamento?.data_pagamento ?? venda.data_quitacao)}
@@ -82,6 +97,13 @@ export default function RegistroVendaCard({
           <div className={styles.acoes}>
             <button type="button" onClick={() => onAdicionarPagamento(venda)}>
               Adicionar pagamento
+            </button>
+            <button
+              className={styles.botaoQuitar}
+              type="button"
+              onClick={() => onQuitarVenda(venda)}
+            >
+              Quitar venda
             </button>
             <button
               className={styles.botaoPerigo}

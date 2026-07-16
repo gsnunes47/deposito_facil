@@ -88,6 +88,94 @@ class PagamentoDomain {
     }
   }
 
+  async quitarVendas(
+    vendaIds: number[],
+    tenantId: number,
+    formaPagamento: FormaPagamento,
+  ) {
+    try {
+      const idsUnicos = [...new Set(vendaIds)];
+
+      const resultado = await prisma.$transaction(async (transaction) => {
+        const vendas = await transaction.venda.findMany({
+          where: {
+            id: { in: idsUnicos },
+            tenant_id: tenantId,
+            pago: false,
+          },
+          include: {
+            pagamentos: true,
+          },
+        });
+
+        if (vendas.length !== idsUnicos.length) {
+          throw new Error(
+            'Uma ou mais vendas não existem, já foram pagas ou não pertencem a este tenant.',
+          );
+        }
+
+        const dataQuitacao = new Date();
+        let valorTotal = 0;
+
+        for (const venda of vendas) {
+          const totalPago = venda.pagamentos.reduce(
+            (total, pagamento) => total + Number(pagamento.valor ?? 0),
+            0,
+          );
+          const debito = venda.total - totalPago;
+
+          if (debito <= 0) {
+            throw new Error(`A venda ${venda.id} não possui débito em aberto.`);
+          }
+
+          await transaction.pagamento.create({
+            data: {
+              venda_id: venda.id,
+              tenant_id: tenantId,
+              forma_pagamento: formaPagamento,
+              valor: debito,
+            },
+          });
+
+          await transaction.venda.update({
+            where: {
+              id: venda.id,
+              tenant_id: tenantId,
+            },
+            data: {
+              pago: true,
+              data_quitacao: dataQuitacao,
+            },
+          });
+
+          valorTotal += debito;
+        }
+
+        return {
+          quantidade: vendas.length,
+          valor_total: valorTotal,
+        };
+      });
+
+      return {
+        code: 200,
+        message:
+          resultado.quantidade === 1
+            ? 'Venda quitada com sucesso'
+            : `${resultado.quantidade} vendas quitadas com sucesso`,
+        ...resultado,
+      };
+    } catch (error) {
+      return {
+        code: 400,
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Não foi possível quitar as vendas',
+      };
+    }
+  }
+
   private async getPagamentoById(pagamentoId: number, tenantId: number) {
     const pagamento = await prisma.pagamento.findFirst({
       where: {

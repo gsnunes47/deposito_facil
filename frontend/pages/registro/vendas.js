@@ -5,7 +5,11 @@ import RegistroVendaCard, {
   calcularDebito,
 } from '../../components/RegistroVendaCard';
 import { listarClientes } from '../../services/clienteService';
-import { excluirPagamento, registrarPagamento } from '../../services/pagamentoService';
+import {
+  excluirPagamento,
+  quitarVendas,
+  registrarPagamento,
+} from '../../services/pagamentoService';
 import { listarProdutos } from '../../services/produtoService';
 import {
   excluirVenda,
@@ -33,6 +37,10 @@ export default function RegistroVendas() {
     forma_pagamento: '',
   });
   const [salvandoPagamento, setSalvandoPagamento] = useState(false);
+  const [vendasSelecionadas, setVendasSelecionadas] = useState([]);
+  const [vendasQuitacao, setVendasQuitacao] = useState(null);
+  const [formaQuitacao, setFormaQuitacao] = useState('');
+  const [salvandoQuitacao, setSalvandoQuitacao] = useState(false);
 
   async function carregarVendas() {
     const [abertas, fechadas] = await Promise.all([
@@ -42,6 +50,7 @@ export default function RegistroVendas() {
 
     setVendasAbertas(abertas);
     setVendasFechadas(fechadas);
+    setVendasSelecionadas([]);
   }
 
   useEffect(() => {
@@ -83,6 +92,60 @@ export default function RegistroVendas() {
     (total, venda) => total + calcularDebito(venda),
     0,
   );
+  const vendasSelecionadasDetalhes = vendasAbertasFiltradas.filter((venda) =>
+    vendasSelecionadas.includes(venda.id),
+  );
+  const totalSelecionado = vendasSelecionadasDetalhes.reduce(
+    (total, venda) => total + calcularDebito(venda),
+    0,
+  );
+  const todasSelecionadas =
+    vendasAbertasFiltradas.length > 0 &&
+    vendasSelecionadasDetalhes.length === vendasAbertasFiltradas.length;
+
+  function alternarVendaSelecionada(vendaId) {
+    setVendasSelecionadas((atuais) =>
+      atuais.includes(vendaId)
+        ? atuais.filter((id) => id !== vendaId)
+        : [...atuais, vendaId],
+    );
+  }
+
+  function alternarTodasVendas() {
+    setVendasSelecionadas(
+      todasSelecionadas ? [] : vendasAbertasFiltradas.map((venda) => venda.id),
+    );
+  }
+
+  function abrirQuitacao(vendas) {
+    setVendasQuitacao(vendas);
+    setFormaQuitacao('');
+  }
+
+  function fecharQuitacao() {
+    if (salvandoQuitacao) return;
+    setVendasQuitacao(null);
+  }
+
+  async function confirmarQuitacao(event) {
+    event.preventDefault();
+    setMensagem(null);
+    setSalvandoQuitacao(true);
+
+    try {
+      const resultado = await quitarVendas(
+        vendasQuitacao.map((venda) => venda.id),
+        formaQuitacao,
+      );
+      await carregarVendas();
+      setVendasQuitacao(null);
+      setMensagem({ tipo: 'sucesso', texto: resultado.message });
+    } catch (error) {
+      setMensagem({ tipo: 'erro', texto: error.message });
+    } finally {
+      setSalvandoQuitacao(false);
+    }
+  }
 
   function abrirPagamento(venda) {
     setVendaPagamento(venda);
@@ -114,7 +177,12 @@ export default function RegistroVendas() {
       return;
     }
 
-    if (valor === debito && !window.confirm('Este pagamento fechará a venda. Deseja continuar?')) {
+    if (
+      valor === debito &&
+      !window.confirm(
+        'Este pagamento fechará a venda. Deseja continuar?',
+      )
+    ) {
       return;
     }
 
@@ -182,7 +250,10 @@ export default function RegistroVendas() {
           <select
             id="cliente"
             value={clienteId}
-            onChange={(event) => setClienteId(event.target.value)}
+            onChange={(event) => {
+              setClienteId(event.target.value);
+              setVendasSelecionadas([]);
+            }}
             disabled={carregando}
           >
             <option value="">Selecione um cliente</option>
@@ -197,7 +268,9 @@ export default function RegistroVendas() {
         {carregando ? (
           <p className={styles.estado}>Carregando vendas...</p>
         ) : !clienteId ? (
-          <p className={styles.estado}>Selecione um cliente para visualizar as vendas.</p>
+          <p className={styles.estado}>
+            Selecione um cliente para visualizar as vendas.
+          </p>
         ) : (
           <>
             <section className={styles.resumoDebito}>
@@ -214,7 +287,42 @@ export default function RegistroVendas() {
             </section>
 
             <section className={styles.secao}>
-              <h2>Vendas Abertas</h2>
+              <div className={styles.cabecalhoAbertas}>
+                <h2>Vendas Abertas</h2>
+
+                {vendasAbertasFiltradas.length > 0 && (
+                  <label className={styles.selecionarTodas}>
+                    <input
+                      type="checkbox"
+                      checked={todasSelecionadas}
+                      onChange={alternarTodasVendas}
+                    />
+                    Selecionar todas
+                  </label>
+                )}
+              </div>
+
+              {vendasSelecionadasDetalhes.length > 0 && (
+                <div className={styles.barraQuitacao}>
+                  <div>
+                    <strong>
+                      {vendasSelecionadasDetalhes.length}{' '}
+                      {vendasSelecionadasDetalhes.length === 1
+                        ? 'venda selecionada'
+                        : 'vendas selecionadas'}
+                    </strong>
+                    <span>
+                      Total: {formatadorMoeda.format(totalSelecionado / 100)}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => abrirQuitacao(vendasSelecionadasDetalhes)}
+                  >
+                    Quitar selecionadas
+                  </button>
+                </div>
+              )}
               {vendasAbertasFiltradas.length === 0 ? (
                 <p className={styles.estado}>Nenhuma venda aberta.</p>
               ) : (
@@ -223,7 +331,12 @@ export default function RegistroVendas() {
                     key={venda.id}
                     venda={venda}
                     produtosPorId={produtosPorId}
+                    selecionada={vendasSelecionadas.includes(venda.id)}
+                    onSelecionar={alternarVendaSelecionada}
                     onAdicionarPagamento={abrirPagamento}
+                    onQuitarVenda={(vendaSelecionada) =>
+                      abrirQuitacao([vendaSelecionada])
+                    }
                     onExcluirPagamento={removerPagamento}
                     onExcluirVenda={removerVenda}
                   />
@@ -314,6 +427,65 @@ export default function RegistroVendas() {
 
               <button type="submit" disabled={salvandoPagamento}>
                 {salvandoPagamento ? 'Adicionando...' : 'Adicionar pagamento'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {vendasQuitacao && (
+        <div className={styles.fundoModal} onMouseDown={fecharQuitacao}>
+          <div
+            className={styles.modal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-quitacao"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              className={styles.fecharModal}
+              type="button"
+              onClick={fecharQuitacao}
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+
+            <h2 id="titulo-quitacao">
+              {vendasQuitacao.length === 1
+                ? 'Quitar venda'
+                : 'Quitar vendas selecionadas'}
+            </h2>
+            <p>
+              {vendasQuitacao.length}{' '}
+              {vendasQuitacao.length === 1 ? 'venda' : 'vendas'} —{' '}
+              <strong>
+                {formatadorMoeda.format(
+                  vendasQuitacao.reduce(
+                    (total, venda) => total + calcularDebito(venda),
+                    0,
+                  ) / 100,
+                )}
+              </strong>
+            </p>
+
+            <form onSubmit={confirmarQuitacao}>
+              <label htmlFor="forma-quitacao">Forma de pagamento</label>
+              <select
+                id="forma-quitacao"
+                value={formaQuitacao}
+                onChange={(event) => setFormaQuitacao(event.target.value)}
+                required
+              >
+                <option value="">Selecione</option>
+                <option value="DINHEIRO">Dinheiro</option>
+                <option value="PIX">Pix</option>
+                <option value="CARTAO_CREDITO">Cartão de crédito</option>
+                <option value="CARTAO_DEBITO">Cartão de débito</option>
+              </select>
+
+              <button type="submit" disabled={salvandoQuitacao}>
+                {salvandoQuitacao ? 'Quitando...' : 'Confirmar quitação'}
               </button>
             </form>
           </div>
