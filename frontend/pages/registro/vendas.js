@@ -14,6 +14,11 @@ import {
 } from '../../services/vendaService';
 import styles from '../../styles/RegistroVendas.module.css';
 
+const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+});
+
 export default function RegistroVendas() {
   const [clientes, setClientes] = useState([]);
   const [produtos, setProdutos] = useState([]);
@@ -73,6 +78,10 @@ export default function RegistroVendas() {
   );
   const vendasFechadasFiltradas = vendasFechadas.filter(
     (venda) => String(venda.cliente_id) === clienteId,
+  );
+  const debitoTotal = vendasAbertasFiltradas.reduce(
+    (total, venda) => total + calcularDebito(venda),
+    0,
   );
 
   function abrirPagamento(venda) {
@@ -191,8 +200,21 @@ export default function RegistroVendas() {
           <p className={styles.estado}>Selecione um cliente para visualizar as vendas.</p>
         ) : (
           <>
+            <section className={styles.resumoDebito}>
+              <div>
+                <span>Débito total</span>
+                <small>
+                  {vendasAbertasFiltradas.length}{' '}
+                  {vendasAbertasFiltradas.length === 1
+                    ? 'venda aberta'
+                    : 'vendas abertas'}
+                </small>
+              </div>
+              <strong>{formatadorMoeda.format(debitoTotal / 100)}</strong>
+            </section>
+
             <section className={styles.secao}>
-              <h2>Vendas</h2>
+              <h2>Vendas Abertas</h2>
               {vendasAbertasFiltradas.length === 0 ? (
                 <p className={styles.estado}>Nenhuma venda aberta.</p>
               ) : (
