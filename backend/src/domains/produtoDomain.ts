@@ -110,8 +110,7 @@ class ProdutoDomain {
         ...(produto.nome !== undefined && {
           nome: produto.nome,
         }),
-        ...(produto.quantidade !== undefined && {
-          // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona.
+        ...(produto.quantidade !== undefined && { // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona. 
           quantidade: produto.quantidade,
         }),
       },

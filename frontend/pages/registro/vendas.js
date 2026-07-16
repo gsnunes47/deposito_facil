@@ -36,6 +36,7 @@ export default function RegistroVendas() {
     valor: '',
     forma_pagamento: '',
   });
+  const [erroPagamento, setErroPagamento] = useState(null);
   const [salvandoPagamento, setSalvandoPagamento] = useState(false);
   const [vendasSelecionadas, setVendasSelecionadas] = useState([]);
   const [vendasQuitacao, setVendasQuitacao] = useState(null);
@@ -150,6 +151,7 @@ export default function RegistroVendas() {
   function abrirPagamento(venda) {
     setVendaPagamento(venda);
     setPagamento({ valor: '', forma_pagamento: '' });
+    setErroPagamento(null);
   }
 
   function fecharPagamento() {
@@ -160,20 +162,18 @@ export default function RegistroVendas() {
   async function adicionarPagamento(event) {
     event.preventDefault();
     setMensagem(null);
+    setErroPagamento(null);
 
     const valor = Math.round(Number(pagamento.valor) * 100);
     const debito = calcularDebito(vendaPagamento);
 
     if (!Number.isFinite(valor) || valor <= 0) {
-      setMensagem({ tipo: 'erro', texto: 'Informe um valor maior que zero.' });
+      setErroPagamento('Informe um valor maior que zero.');
       return;
     }
 
     if (valor > debito) {
-      setMensagem({
-        tipo: 'erro',
-        texto: 'O pagamento não pode ser maior que o valor a pagar.',
-      });
+      setErroPagamento('O pagamento não pode ser maior que o valor a pagar.');
       return;
     }
 
@@ -198,7 +198,7 @@ export default function RegistroVendas() {
       setVendaPagamento(null);
       setMensagem({ tipo: 'sucesso', texto: 'Pagamento adicionado.' });
     } catch (error) {
-      setMensagem({ tipo: 'erro', texto: error.message });
+      setErroPagamento(error.message);
     } finally {
       setSalvandoPagamento(false);
     }
@@ -388,6 +388,12 @@ export default function RegistroVendas() {
                 currency: 'BRL',
               }).format(calcularDebito(vendaPagamento) / 100)}</strong>
             </p>
+
+            {erroPagamento && (
+              <div className={`${styles.mensagem} ${styles.erro}`}>
+                {erroPagamento}
+              </div>
+            )}
 
             <form onSubmit={adicionarPagamento}>
               <label htmlFor="valor">Valor</label>

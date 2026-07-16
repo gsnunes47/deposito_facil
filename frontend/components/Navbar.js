@@ -14,15 +14,7 @@ const Navbar = () => {
         </li>
 
         <li>
-          <a href="#" onClick={(e) => e.preventDefault()}>
-            Saída
-          </a>
-
-          <ul className={styles.dropdown}>
-            <li>
-              <Link href="/venda">Venda</Link>
-            </li>
-          </ul>
+          <Link href="/venda">Saída</Link>
         </li>
 
         <li>

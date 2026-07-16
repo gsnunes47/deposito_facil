@@ -92,6 +92,31 @@ form select {
   box-sizing: border-box;
 }
 
+
+.form-login {
+  margin-top: 100px;
+}
+
+.form-login label:not(:first-child) {
+  margin-top: 20px;
+}
+
+.form-login-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.form-login-btn:disabled {
+  cursor: not-allowed;
+}
+
+.form-login-erro {
+  margin-top: 15px;
+  color: #b42318;
+}
+
 ul {
   list-style: none;
   background: #333;

@@ -30,6 +30,7 @@
 }
 
 .filtro select,
+.filtro input,
 .modal input,
 .modal select {
   width: 100%;
@@ -38,6 +39,27 @@
   border-radius: 8px;
   background: #ffffff;
   font: inherit;
+}
+
+.filtrosEncomendas {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 0.45fr);
+  gap: 18px;
+}
+
+.resumosEncomendas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.resumosEncomendas .resumoDebito {
+  margin-bottom: 10px;
+}
+
+.fornecedorCard {
+  margin: 0 0 8px;
+  color: #475569;
 }
 
 .resumoDebito {
@@ -316,6 +338,8 @@
 
 .modal h2 {
   margin-bottom: 12px;
+  color: #000000;
+  text-shadow: none;
 }
 
 .modal p {
@@ -368,6 +392,11 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 12px;
+  }
+
+  .filtrosEncomendas,
+  .resumosEncomendas {
+    grid-template-columns: 1fr;
   }
 
   .cabecalhoAbertas,
