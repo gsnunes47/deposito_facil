@@ -1,0 +1,277 @@
+.pagina {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px;
+  font-family: Arial, sans-serif;
+  color: #202b38;
+  background:
+    linear-gradient(rgba(35, 48, 64, 0.82), rgba(29, 42, 57, 0.9)),
+    url('../assets/background.jpg') center / cover fixed;
+}
+
+.cartao {
+  width: min(960px, 100%);
+  min-height: 570px;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(13, 24, 38, 0.34);
+}
+
+.apresentacao {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(137, 164, 190, 0.38), transparent 36%),
+    linear-gradient(145deg, #40566d, #26384b);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.simbolo {
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 12px;
+  color: #2e4358;
+  background: #d6e0e9;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.sobretitulo {
+  margin: 0 0 12px;
+  color: #536f8b;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.apresentacao .sobretitulo {
+  color: #c3d3e0;
+}
+
+.apresentacao h1 {
+  max-width: 420px;
+  margin: 0;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+}
+
+.descricao {
+  max-width: 410px;
+  margin: 22px 0 0;
+  color: #d5dee7;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.acesso {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 56px 48px;
+  background: #fff;
+}
+
+.cabecalho {
+  margin-bottom: 32px;
+}
+
+.cabecalho h2 {
+  margin: 0;
+  padding: 0;
+  color: #202b38;
+  font-size: 30px;
+  text-align: left;
+  text-shadow: none;
+}
+
+.cabecalho > p:last-child {
+  margin: 10px 0 0;
+  color: #647068;
+  line-height: 1.5;
+}
+
+.formulario {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.campo + .campo {
+  margin-top: 20px;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 8px;
+  color: #344252;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.campo input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #cbd4dd;
+  border-radius: 9px;
+  outline: none;
+  background: #fafbfd;
+  color: #202b38;
+  font-size: 15px;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.campo input:focus {
+  border-color: #607f9e;
+  box-shadow: 0 0 0 3px rgba(96, 127, 158, 0.16);
+}
+
+.campo input::placeholder {
+  color: #96a2ae;
+}
+
+.botao {
+  width: 100%;
+  margin-top: 26px;
+  padding: 14px 18px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #496781;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+}
+
+.botao:hover:not(:disabled) {
+  background: #354f68;
+}
+
+.botao:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.botao:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.erro {
+  margin: 18px 0 0;
+  padding: 11px 13px;
+  border: 1px solid #f2c6c2;
+  border-radius: 8px;
+  color: #9e2f27;
+  background: #fff3f2;
+  font-size: 14px;
+}
+
+.tenant {
+  margin: 22px 0 0;
+  color: #89938c;
+  font-size: 12px;
+  text-align: center;
+}
+
+.aviso {
+  width: min(460px, 100%);
+  padding: 48px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(13, 24, 38, 0.34);
+  text-align: center;
+}
+
+.aviso .simbolo {
+  margin: 0 auto 24px;
+}
+
+.aviso h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.aviso p {
+  margin: 14px 0 0;
+  color: #647068;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .pagina {
+    padding: 20px;
+  }
+
+  .cartao {
+    grid-template-columns: 1fr;
+  }
+
+  .apresentacao {
+    min-height: 230px;
+    padding: 30px;
+  }
+
+  .apresentacao h1 {
+    max-width: 500px;
+    font-size: 32px;
+  }
+
+  .descricao {
+    display: none;
+  }
+
+  .acesso {
+    padding: 38px 30px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pagina {
+    padding: 0;
+    place-items: stretch;
+  }
+
+  .cartao {
+    min-height: 100vh;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .apresentacao {
+    min-height: 205px;
+    padding: 26px 24px;
+  }
+
+  .acesso {
+    padding: 34px 24px;
+  }
+}

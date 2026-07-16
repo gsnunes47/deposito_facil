@@ -4,15 +4,21 @@ import authDomain from '../domains/authDomain.js';
 import { generateToken } from '../helpers/jwtHelper.js';
 
 export async function login(request: Request, response: Response) {
+  const tenantId = Number(request.params.tenantId);
+
+  if (!Number.isInteger(tenantId) || tenantId <= 0) {
+    return response.status(400).json({
+      message: 'Tenant inválido',
+    });
+  }
+
   const userData = {
     login: request.body.login,
     password: request.body.password,
-    tenantId: request.params.tenantId,
+    tenantId,
   };
 
   const auth = await authDomain.login(userData);
-
-  console.log('auth: ', auth);
 
   if (auth.code != 200 || !auth.data) {
     return response.status(auth.code).json(auth);
