@@ -35,7 +35,8 @@ model Despesa {
   id Int @id @default(autoincrement())
   tenant_id Int
   descricao String
-  valor Int 
+  valor Int
+  data DateTime @default(now())
 }
 
 model Produto {

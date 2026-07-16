@@ -287,7 +287,7 @@ export default function RegistroEncomendas() {
               onClick={fecharPagamento}
               aria-label="Fechar"
             >
-              ×
+              
             </button>
             <h2 id="titulo-pagamento-encomenda">Registrar pagamento</h2>
             <p>

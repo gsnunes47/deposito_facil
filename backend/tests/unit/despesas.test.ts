@@ -50,6 +50,7 @@ describe('Despesa Domain', () => {
       id: 999999,
       descricao: 'Teste',
       valor: 1,
+      data: new Date(),
       tenant_id: 1,
     });
 

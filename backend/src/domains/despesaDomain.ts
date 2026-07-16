@@ -6,16 +6,23 @@ interface despesaInterface {
   tenant_id: number;
   descricao: string;
   valor: number;
+  data: Date;
 }
 
 class DespesaDomain {
-  async createDespesa(valor: number, descricao: string, tenant_id: number) {
+  async createDespesa(
+    valor: number,
+    descricao: string,
+    tenant_id: number,
+    data: Date = new Date(),
+  ) {
     try {
       const despesa = await prisma.despesa.create({
         data: {
           tenant_id: tenant_id,
           descricao: descricao,
           valor: valor,
+          data,
         },
       });
 
@@ -42,6 +49,10 @@ class DespesaDomain {
         id: true,
         descricao: true,
         valor: true,
+        data: true,
+      },
+      orderBy: {
+        data: 'desc',
       },
     });
 
@@ -50,7 +61,7 @@ class DespesaDomain {
 
   async getDespesaById(despesaId: number, tenantId: number) {
     const despesa = await prisma.despesa.findFirst({
-        where: {
+      where: {
         id: despesaId,
         tenant_id: tenantId,
       },
@@ -103,6 +114,7 @@ class DespesaDomain {
       data: {
         descricao: despesa.descricao,
         valor: despesa.valor,
+        data: despesa.data,
       },
     });
 

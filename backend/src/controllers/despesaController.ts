@@ -13,17 +13,25 @@ export async function createDespesa(request: Request, response: Response) {
   if (
     request.body.valor === undefined ||
     request.body.valor === null ||
-    isNaN(Number(request.body.valor))
+    isNaN(Number(request.body.valor)) ||
+    Number(request.body.valor) <= 0
   ) {
     return response
       .status(400)
-      .send({ error: 'Valor da despesa é obrigatório e deve ser um número' });
+      .send({ error: 'Valor da despesa deve ser maior que zero' });
+  }
+
+  if (!request.body.data || isNaN(new Date(request.body.data).getTime())) {
+    return response.status(400).send({
+      error: 'Data da despesa é obrigatória e deve ser válida',
+    });
   }
 
   const despesa = await despesaDomain.createDespesa(
     Number(request.body.valor),
     request.body.descricao,
     user.tenantId,
+    new Date(request.body.data),
   );
 
   if (despesa.code === 200) {
@@ -91,8 +99,20 @@ export async function updateDespesa(request: Request, response: Response) {
     id: Number(despesaId),
     descricao: (request.body.descricao as string) || '',
     valor: Number(request.body.valor),
+    data: new Date(request.body.data),
     tenant_id: request.user.tenantId,
   };
+
+  if (
+    !despesaData.descricao.trim() ||
+    !Number.isFinite(despesaData.valor) ||
+    despesaData.valor <= 0 ||
+    isNaN(despesaData.data.getTime())
+  ) {
+    return response.status(400).send({
+      error: 'Descrição, valor e data válida são obrigatórios',
+    });
+  }
 
   const updatedDespesa = await despesaDomain.updateDespesa(despesaData);
 
