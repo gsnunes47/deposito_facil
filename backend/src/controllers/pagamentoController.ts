@@ -85,7 +85,13 @@ export async function quitarVendas(request: Request, response: Response) {
     request.body.forma_pagamento,
   );
 
-  return response.status(resultado.code).send({
+  if (resultado.code === 400) {
+    return response.status(400).send({
+      message: resultado.message,
+    });
+  }
+
+  return response.status(200).send({
     message: resultado.message,
     quantidade: resultado.quantidade,
     valor_total: resultado.valor_total,

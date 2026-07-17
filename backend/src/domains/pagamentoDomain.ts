@@ -10,6 +10,18 @@ interface pagamentoInterface {
   forma_pagamento: FormaPagamento;
 }
 
+type ResultadoQuitacaoVendas =
+  | {
+      code: 200;
+      message: string;
+      quantidade: number;
+      valor_total: number;
+    }
+  | {
+      code: 400;
+      message: string;
+    };
+
 class PagamentoDomain {
   async createPagamento(
     venda_id: number,
@@ -92,7 +104,7 @@ class PagamentoDomain {
     vendaIds: number[],
     tenantId: number,
     formaPagamento: FormaPagamento,
-  ) {
+  ): Promise<ResultadoQuitacaoVendas> {
     try {
       const idsUnicos = [...new Set(vendaIds)];
 
