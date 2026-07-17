@@ -13,6 +13,8 @@ import fornecedorRouter from './routing/routers/fornecedorRouter.js';
 import encomendaRouter from './routing/routers/encomendaRouter.js';
 import usersRouter from './routing/routers/userRouter.js';
 import tenantRouter from './routing/routers/tenantRouter.js';
+import relatorioRouter from './routing/routers/relatorioRouter.js';
+import estoqueRouter from './routing/routers/estoqueRouter.js';
 import authMiddleware from './routing/middlewares/authMiddleware.js';
 import roleMiddleware from './routing/middlewares/roleMiddleware.js';
 
@@ -45,6 +47,8 @@ app.use('/pagamentoEncomenda', pagamentoEncomendaRouter);
 app.use('/despesa', despesaRouter);
 app.use('/fornecedor', fornecedorRouter);
 app.use('/encomenda', encomendaRouter);
+app.use('/relatorios', relatorioRouter);
+app.use('/estoque', estoqueRouter);
 
 app.listen(PORT, () => {
   console.log(`Rodando na porta: ${PORT}`);
