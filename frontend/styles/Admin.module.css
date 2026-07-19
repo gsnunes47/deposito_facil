@@ -1,0 +1,351 @@
+.pagina {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  background: #eef3f7;
+  color: #1f2937;
+}
+
+.cartao {
+  width: min(780px, 100%);
+  padding: 32px;
+  border: 1px solid #dbe3ea;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.1);
+}
+
+.marca {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #26384b;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.sobretitulo {
+  margin: 24px 0 4px;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cartao h1 {
+  margin: 0 0 24px;
+}
+
+.cartao form {
+  display: grid;
+  gap: 8px;
+}
+
+.cartao label {
+  display: block;
+  margin: 8px 0 6px;
+  font-weight: 700;
+}
+
+.cartao input {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.cartao input:focus {
+  border-color: #496781;
+  outline: 3px solid rgba(73, 103, 129, 0.14);
+}
+
+.cartao button {
+  margin-top: 12px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #26384b;
+  color: #ffffff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.cartao button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.novoTenant {
+  padding: 20px;
+  border: 1px solid #dbe3ea;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.novoTenant h2 {
+  margin: 0 0 4px;
+  /* font-size: 1rem; */
+}
+
+.camposNovoTenant {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.lista {
+  margin-top: 14px;
+}
+
+.lista > h2 {
+  font-size: 1rem;
+}
+
+.tenant {
+  padding: 16px 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.tenantCabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.identidade {
+  display: grid;
+  gap: 3px;
+}
+
+.identidade span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.acoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acoes a {
+  color: #36546e;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cartao .botaoSecundario {
+  margin: 0;
+  padding: 8px 11px;
+  border: 1px solid #b9c7d3;
+  background: #ffffff;
+  color: #36546e;
+  white-space: nowrap;
+}
+
+.credenciais {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #edf3f7;
+}
+
+.acoesEdicao {
+  display: flex;
+  justify-content: flex-end;
+  grid-column: 1 / -1;
+  gap: 8px;
+}
+
+.cartao .botaoCancelar {
+  border: 1px solid #b9c7d3;
+  background: #ffffff;
+  color: #475569;
+}
+
+.erro,
+.sucesso {
+  padding: 11px 13px;
+  border-radius: 8px;
+}
+
+.erro {
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.sucesso {
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.estado {
+  color: #64748b;
+}
+
+@media (max-width: 700px) {
+  .camposNovoTenant,
+  .credenciais {
+    grid-template-columns: 1fr;
+  }
+
+  .tenantCabecalho {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acoesEdicao {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .cartao {
+    padding: 24px 20px;
+  }
+
+  .acoes {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .acoes a {
+    text-align: center;
+  }
+}
+
+.cartao select {
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+}
+
+.cartao select:focus {
+  border-color: #496781;
+  outline: 3px solid rgba(73, 103, 129, 0.14);
+}
+
+.gestaoUsuarios {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.listaUsuarios {
+  display: grid;
+}
+
+.usuario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid #dbe3ea;
+}
+
+.dadosUsuario {
+  display: grid;
+  gap: 3px;
+}
+
+.dadosUsuario span {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.acoesUsuario {
+  display: flex;
+  gap: 8px;
+}
+
+.cartao .acoesUsuario button {
+  margin: 0;
+  padding: 7px 10px;
+}
+
+.cartao .botaoPerigo {
+  border: 1px solid #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.formUsuario {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 0.8fr 1.2fr auto;
+  align-items: end;
+  gap: 10px;
+}
+
+.formUsuario label {
+  font-size: 0.86rem;
+}
+
+.formUsuario > button {
+  align-self: end;
+}
+
+.novoUsuario {
+  margin-top: 18px;
+  padding-top: 4px;
+}
+
+.novoUsuario h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 700px) {
+  .formUsuario {
+    grid-template-columns: 1fr;
+  }
+
+  .usuario {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .acoesUsuario {
+    width: 100%;
+  }
+}
+
+.cabecalhoLista,
+.cabecalhoGestao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cabecalhoLista h2 {
+  margin: 0;
+  color: #000000;
+  font-size: 1rem;
+}
+
+.cartao .cabecalhoLista button,
+.cartao .cabecalhoGestao button {
+  margin: 0;
+  padding: 9px 12px;
+}
+
+.novoUsuario .formUsuario {
+  grid-template-columns: 1fr;
+}

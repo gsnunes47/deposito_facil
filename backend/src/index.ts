@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRouter from './routing/routers/authRouter.js';
+import adminAuthRouter from './routing/routers/adminAuthRouter.js';
 import produtosRouter from './routing/routers/produtosRouter.js';
 import vendaRouter from './routing/routers/vendaRouter.js';
 import clienteRouter from './routing/routers/clienteRouter.js';
@@ -17,6 +18,8 @@ import relatorioRouter from './routing/routers/relatorioRouter.js';
 import estoqueRouter from './routing/routers/estoqueRouter.js';
 import authMiddleware from './routing/middlewares/authMiddleware.js';
 import roleMiddleware from './routing/middlewares/roleMiddleware.js';
+import platformAdminMiddleware from './routing/middlewares/platformAdminMiddleware.js';
+import * as authController from './controllers/authController.js';
 
 //configuração
 const app = express();
@@ -34,9 +37,14 @@ app.use(cookieParser());
 
 //rota de login sem middleware de autenticação
 app.use('/login', authRouter);
+app.use('/admin/login', adminAuthRouter);
 
 //middlewares
 app.use(authMiddleware.verify);
+
+app.get('/session', authController.session);
+app.post('/logout', authController.logout);
+app.use('/admin/tenants', platformAdminMiddleware.verify, tenantRouter);
 
 // routes
 app.use('/produtos', produtosRouter);

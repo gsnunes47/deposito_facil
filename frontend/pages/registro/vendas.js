@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import TituloPagina from '../../components/TituloPagina';
+import SelectPesquisavel from '../../components/SelectPesquisavel';
 import RegistroVendaCard, {
   calcularDebito,
 } from '../../components/RegistroVendaCard';
@@ -76,10 +77,7 @@ export default function RegistroVendas() {
   }, []);
 
   const produtosPorId = useMemo(
-    () =>
-      Object.fromEntries(
-        produtos.map((produto) => [produto.id, produto]),
-      ),
+    () => Object.fromEntries(produtos.map((produto) => [produto.id, produto])),
     [produtos],
   );
 
@@ -179,9 +177,7 @@ export default function RegistroVendas() {
 
     if (
       valor === debito &&
-      !window.confirm(
-        'Este pagamento fechará a venda. Deseja continuar?',
-      )
+      !window.confirm('Este pagamento fechará a venda. Deseja continuar?')
     ) {
       return;
     }
@@ -205,7 +201,9 @@ export default function RegistroVendas() {
   }
 
   async function removerPagamento(pagamentoSelecionado) {
-    if (!window.confirm('Você tem certeza que deseja excluir este pagamento?')) {
+    if (
+      !window.confirm('Você tem certeza que deseja excluir este pagamento?')
+    ) {
       return;
     }
 
@@ -247,22 +245,20 @@ export default function RegistroVendas() {
 
         <section className={styles.filtro}>
           <label htmlFor="cliente">Cliente</label>
-          <select
+          <SelectPesquisavel
             id="cliente"
             value={clienteId}
-            onChange={(event) => {
-              setClienteId(event.target.value);
+            onChange={(value) => {
+              setClienteId(value);
               setVendasSelecionadas([]);
             }}
+            options={clientes.map((cliente) => ({
+              value: cliente.id,
+              label: cliente.nome,
+            }))}
+            searchPlaceholder="Pesquise um cliente"
             disabled={carregando}
-          >
-            <option value="">Selecione um cliente</option>
-            {clientes.map((cliente) => (
-              <option key={cliente.id} value={cliente.id}>
-                {cliente.nome}
-              </option>
-            ))}
-          </select>
+          />
         </section>
 
         {carregando ? (
@@ -383,10 +379,13 @@ export default function RegistroVendas() {
 
             <h2 id="titulo-pagamento">Adicionar pagamento</h2>
             <p>
-              A pagar: <strong>{new Intl.NumberFormat('pt-BR', {
-                style: 'currency',
-                currency: 'BRL',
-              }).format(calcularDebito(vendaPagamento) / 100)}</strong>
+              A pagar:{' '}
+              <strong>
+                {new Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(calcularDebito(vendaPagamento) / 100)}
+              </strong>
             </p>
 
             {erroPagamento && (

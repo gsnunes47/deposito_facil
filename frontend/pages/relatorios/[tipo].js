@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import TituloPagina from '../../components/TituloPagina';
+import SelectPesquisavel from '../../components/SelectPesquisavel';
 import { encontrarRelatorio } from '../../config/relatorios';
 import { listarClientes } from '../../services/clienteService';
 import { gerarRelatorio } from '../../services/relatorioService';
@@ -317,19 +318,22 @@ export default function PaginaRelatorio() {
             {relatorio.filtroCliente && (
               <div>
                 <label htmlFor="cliente_id">Cliente</label>
-                <select
+                <SelectPesquisavel
                   id="cliente_id"
-                  name="cliente_id"
                   value={filtros.cliente_id}
-                  onChange={alterarFiltro}
-                >
-                  <option value="">Todos os clientes</option>
-                  {clientes.map((cliente) => (
-                    <option key={cliente.id} value={cliente.id}>
-                      {cliente.nome}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) =>
+                    setFiltros((atuais) => ({
+                      ...atuais,
+                      cliente_id: value,
+                    }))
+                  }
+                  options={clientes.map((cliente) => ({
+                    value: cliente.id,
+                    label: cliente.nome,
+                  }))}
+                  placeholder="Todos os clientes"
+                  searchPlaceholder="Pesquise um cliente"
+                />
               </div>
             )}
 

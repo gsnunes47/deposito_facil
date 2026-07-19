@@ -30,7 +30,7 @@ export async function login(request: Request, response: Response) {
     accessLevel: auth.data.access_level,
   });
 
-  response
+  return response
     .cookie('token', token, {
       httpOnly: true, // JS do browser não consegue ler
       secure: process.env.NODE_ENV === 'production', // HTTPS only em prod
@@ -38,5 +38,23 @@ export async function login(request: Request, response: Response) {
       maxAge: 2 * 60 * 60 * 1000, // 2h em ms
     })
     .status(200)
-    .json({ message: 'Login realizado com sucesso' });
+    .json({
+      message: 'Login realizado com sucesso',
+      tenantId: auth.data.tenant_id,
+    });
+}
+
+export function session(request: Request, response: Response) {
+  return response.status(200).json({ user: request.user });
+}
+
+export function logout(_request: Request, response: Response) {
+  return response
+    .clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+    })
+    .status(204)
+    .send();
 }

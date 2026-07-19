@@ -10,7 +10,7 @@ class authMiddleware {
     } else {
       const decoded = jwtHelper.verifyToken(token);
 
-      if (!token) {
+      if (!decoded.valid) {
         return response.status(401).json({
           message: 'Não autorizado',
         });

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Navbar from './Navbar';
 import TituloPagina from './TituloPagina';
+import SelectPesquisavel from './SelectPesquisavel';
 import styles from '../styles/Movimentacao.module.css';
 
 const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
@@ -47,7 +48,8 @@ export default function FormularioMovimentacao({
 
     for (const produto of produtos) {
       const item = valores[produto.id] ?? {};
-      const possuiQuantidade = item.quantidade !== '' && item.quantidade != null;
+      const possuiQuantidade =
+        item.quantidade !== '' && item.quantidade != null;
       const possuiPreco = item.preco !== '' && item.preco != null;
 
       if (!possuiQuantidade && !possuiPreco) continue;
@@ -56,11 +58,15 @@ export default function FormularioMovimentacao({
       const preco = Number(item.preco);
 
       if (!Number.isInteger(quantidade) || quantidade <= 0) {
-        throw new Error(`Informe uma quantidade inteira maior que zero para ${produto.nome}.`);
+        throw new Error(
+          `Informe uma quantidade inteira maior que zero para ${produto.nome}.`,
+        );
       }
 
       if (!Number.isFinite(preco) || preco <= 0) {
-        throw new Error(`Informe um preço maior que zero para ${produto.nome}.`);
+        throw new Error(
+          `Informe um preço maior que zero para ${produto.nome}.`,
+        );
       }
 
       produtosSelecionados.push({
@@ -115,9 +121,7 @@ export default function FormularioMovimentacao({
 
         {(mensagem || erroCarregamento) && (
           <div
-            className={`${styles.mensagem} ${
-              styles[mensagem?.tipo ?? 'erro']
-            }`}
+            className={`${styles.mensagem} ${styles[mensagem?.tipo ?? 'erro']}`}
           >
             {mensagem?.texto ?? erroCarregamento}
           </div>
@@ -192,19 +196,16 @@ export default function FormularioMovimentacao({
           <div className={styles.dadosMovimentacao}>
             <div className={styles.campo}>
               <label htmlFor="entidade">{rotuloEntidade}</label>
-              <select
+              <SelectPesquisavel
                 id="entidade"
                 value={entidadeId}
-                onChange={(event) => setEntidadeId(event.target.value)}
+                onChange={setEntidadeId}
+                options={entidades.map((entidade) => ({
+                  value: entidade.id,
+                  label: entidade.nome,
+                }))}
                 required
-              >
-                <option value="">Selecione</option>
-                {entidades.map((entidade) => (
-                  <option key={entidade.id} value={entidade.id}>
-                    {entidade.nome}
-                  </option>
-                ))}
-              </select>
+              />
             </div>
 
             {exibirData && (

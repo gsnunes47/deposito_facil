@@ -5,6 +5,7 @@ node_modules
 src/generated/
 .vscode/
 *.tsbuildinfo
+*.db
 .next
 build
 scripts

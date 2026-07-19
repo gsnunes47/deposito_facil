@@ -5,6 +5,7 @@ import RegistroEncomendaCard, {
   calcularValorPendente,
 } from '../../components/RegistroEncomendaCard';
 import TituloPagina from '../../components/TituloPagina';
+import SelectPesquisavel from '../../components/SelectPesquisavel';
 import {
   listarEncomendasAbertas,
   listarEncomendasFechadas,
@@ -83,8 +84,7 @@ export default function RegistroEncomendas() {
     return encomendas
       .filter(
         (encomenda) =>
-          (!fornecedorId ||
-            String(encomenda.fornecedor_id) === fornecedorId) &&
+          (!fornecedorId || String(encomenda.fornecedor_id) === fornecedorId) &&
           (!mes || String(encomenda.data).slice(0, 7) === mes),
       )
       .sort((a, b) => new Date(b.data) - new Date(a.data));
@@ -157,7 +157,9 @@ export default function RegistroEncomendas() {
   }
 
   async function removerPagamento(pagamentoSelecionado) {
-    if (!window.confirm('Você tem certeza que deseja excluir este pagamento?')) {
+    if (
+      !window.confirm('Você tem certeza que deseja excluir este pagamento?')
+    ) {
       return;
     }
     try {
@@ -199,19 +201,18 @@ export default function RegistroEncomendas() {
         <section className={`${styles.filtro} ${styles.filtrosEncomendas}`}>
           <div>
             <label htmlFor="fornecedor">Fornecedor</label>
-            <select
+            <SelectPesquisavel
               id="fornecedor"
               value={fornecedorId}
-              onChange={(event) => setFornecedorId(event.target.value)}
+              onChange={setFornecedorId}
+              options={fornecedores.map((fornecedor) => ({
+                value: fornecedor.id,
+                label: fornecedor.nome,
+              }))}
+              placeholder="Todos os fornecedores"
+              searchPlaceholder="Pesquise um fornecedor"
               disabled={carregando}
-            >
-              <option value="">Todos os fornecedores</option>
-              {fornecedores.map((fornecedor) => (
-                <option key={fornecedor.id} value={fornecedor.id}>
-                  {fornecedor.nome}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           <div>
             <label htmlFor="mes">Mês</label>
@@ -286,9 +287,7 @@ export default function RegistroEncomendas() {
               type="button"
               onClick={fecharPagamento}
               aria-label="Fechar"
-            >
-              
-            </button>
+            ></button>
             <h2 id="titulo-pagamento-encomenda">Registrar pagamento</h2>
             <p>
               A pagar:{' '}

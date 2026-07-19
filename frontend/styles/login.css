@@ -20,12 +20,12 @@ body {
 h2 {
   text-align: center;
   color: #fff;
-  padding: 10px 0;
-  text-shadow:
+  padding: 10px 0;    
+  /* text-shadow:
     1px 1px 0 #333,
-    /* Sombra à direita e abaixo */ -1px -1px 0 #333,
-    /* Sombra à esquerda e acima */ 1px -1px 0 #333,
-    /* Sombra à direita e acima */ -1px 1px 0 #333; /* Sombra à esquerda e abaixo */
+    -1px -1px 0 #333,
+    1px -1px 0 #333,
+    -1px 1px 0 #333; */
 }
 
 h3 {

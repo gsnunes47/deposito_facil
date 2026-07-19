@@ -5,9 +5,8 @@
   padding: 32px;
   font-family: Arial, sans-serif;
   color: #202b38;
-  background:
-    linear-gradient(rgba(35, 48, 64, 0.82), rgba(29, 42, 57, 0.9)),
-    url('../assets/background.jpg') center / cover fixed;
+  background: linear-gradient(rgba(35, 48, 64, 0.82), rgba(29, 42, 57, 0.9));
+  /* url('../assets/background.jpg') center / cover fixed; */
 }
 
 .cartao {
@@ -29,7 +28,11 @@
   padding: 48px;
   color: #fff;
   background:
-    radial-gradient(circle at 90% 10%, rgba(137, 164, 190, 0.38), transparent 36%),
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(137, 164, 190, 0.38),
+      transparent 36%
+    ),
     linear-gradient(145deg, #40566d, #26384b);
 }
 
