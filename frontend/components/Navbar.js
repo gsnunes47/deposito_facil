@@ -42,9 +42,17 @@ const Navbar = () => {
         <li><Link href="/venda" onClick={fecharMenu}>Saída</Link></li>
 
         <li className={styles.itemComSubmenu}>
-          <button type="button" className={styles.botaoSubmenu} aria-expanded={submenuAberto === 'cadastro'} onClick={() => alternarSubmenu('cadastro')}>
+          <a
+            href="#"
+            className={styles.botaoSubmenu}
+            aria-expanded={submenuAberto === 'cadastro'}
+            onClick={(event) => {
+              event.preventDefault();
+              alternarSubmenu('cadastro');
+            }}
+          >
             Cadastro <span className={styles.seta} aria-hidden="true" />
-          </button>
+          </a>
           <ul className={`${styles.dropdown} ${submenuAberto === 'cadastro' ? styles.dropdownAberto : ''}`}>
             <li><Link href="/cadastro/despesas" onClick={fecharMenu}>Despesas</Link></li>
             <li><Link href="/cadastro/cliente" onClick={fecharMenu}>Cliente</Link></li>
@@ -54,9 +62,17 @@ const Navbar = () => {
         </li>
 
         <li className={styles.itemComSubmenu}>
-          <button type="button" className={styles.botaoSubmenu} aria-expanded={submenuAberto === 'registros'} onClick={() => alternarSubmenu('registros')}>
+          <a
+            href="#"
+            className={styles.botaoSubmenu}
+            aria-expanded={submenuAberto === 'registros'}
+            onClick={(event) => {
+              event.preventDefault();
+              alternarSubmenu('registros');
+            }}
+          >
             Registros <span className={styles.seta} aria-hidden="true" />
-          </button>
+          </a>
           <ul className={`${styles.dropdown} ${submenuAberto === 'registros' ? styles.dropdownAberto : ''}`}>
             <li><Link href="/registro/vendas" onClick={fecharMenu}>Vendas</Link></li>
             <li><Link href="/registro/encomendas" onClick={fecharMenu}>Encomendas</Link></li>

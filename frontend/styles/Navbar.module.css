@@ -11,21 +11,14 @@
   padding: 0;
 }
 
-.menu {
-  display: flex;
-  align-items: stretch;
-}
-
 .menu > li {
+  display: inline-block;
   position: relative;
 }
 
 .nav a,
 .botaoSubmenu {
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  justify-content: center;
+  display: block;
   padding: 10px 15px;
   border: 0;
   color: #fff;
@@ -48,6 +41,7 @@
 }
 
 .seta {
+  display: none;
   width: 8px;
   height: 8px;
   margin-left: 9px;
@@ -67,18 +61,24 @@
   left: 0;
   z-index: 999;
   display: none;
-  min-width: max-content;
-  white-space: nowrap;
+  width: 100%;
+  min-width: 100%;
+  white-space: normal;
   background: #333;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 
-.dropdown li,
-.dropdown a {
-  width: 100%;
+.dropdown li {
+  display: block;
 }
 
-.dropdownAberto,
+.dropdown a {
+  width: 100%;
+  padding-right: 8px;
+  padding-left: 8px;
+  font-size: 18px;
+}
+
 .itemComSubmenu:hover > .dropdown,
 .itemComSubmenu:focus-within > .dropdown {
   display: block;
@@ -128,7 +128,9 @@
     height: 2px;
     border-radius: 2px;
     background: currentColor;
-    transition: transform 0.2s ease, opacity 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      opacity 0.2s ease;
   }
 
   .botaoMenu[aria-expanded='true'] span:first-child {
@@ -156,13 +158,24 @@
     display: block;
   }
 
+  .seta {
+    display: inline-block;
+  }
+
   .nav a,
   .botaoSubmenu {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 12px 18px;
     text-align: left;
     font-size: 17px;
+  }
+
+  .menu > li {
+    display: block;
   }
 
   .menu > li + li {
