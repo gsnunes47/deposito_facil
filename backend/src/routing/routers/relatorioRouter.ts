@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import * as controllers from '../../controllers/relatorioController.js';
+import roleMiddleware from '../middlewares/roleMiddleware.js';
 
 const router = Router();
+
+router.use(roleMiddleware.allow('admin', 'gerente'));
 
 router.get('/contas-abertas', controllers.getContasAbertas);
 router.get('/lucro', controllers.getLucro);

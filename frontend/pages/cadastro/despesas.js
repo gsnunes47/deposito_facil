@@ -7,6 +7,7 @@ import {
   excluirDespesa,
   listarDespesas,
 } from '../../services/despesaService';
+import { imprimirArea } from '../../services/impressaoService';
 import styles from '../../styles/Despesas.module.css';
 
 const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
@@ -138,6 +139,13 @@ export default function CadastroDespesas() {
     }
   }
 
+  function imprimirDespesas() {
+    imprimirArea({
+      elementoId: 'despesas-impressao',
+      titulo: `Despesas - ${nomeMes(mesSelecionado)}`,
+    });
+  }
+
   async function removerDespesa(despesa) {
     if (
       !window.confirm(
@@ -246,25 +254,44 @@ export default function CadastroDespesas() {
           </form>
         </section>
 
-        <section className={styles.cartao}>
+        <section
+          id="despesas-impressao"
+          className={`${styles.cartao} ${styles.areaImpressao}`}
+        >
+          <header className={styles.cabecalhoImpressao}>
+            <span>Depósito Fácil</span>
+            <h1>Relatório de despesas</h1>
+            <p>Data: {nomeMes(mesSelecionado)}</p>
+          </header>
+
           <div className={styles.cabecalhoLista}>
             <div>
               <h2>Despesas do mês</h2>
               <p>{nomeMes(mesSelecionado)}</p>
             </div>
-            <div className={styles.navegacaoMes}>
-              <button type="button" onClick={() => mudarMes(-1)}>
-                ← Anterior
+            <div className={styles.acoesCabecalho} data-nao-imprimir>
+              <button
+                className={styles.botaoImprimir}
+                type="button"
+                onClick={imprimirDespesas}
+                disabled={carregando}
+              >
+                Imprimir A4
               </button>
-              <input
-                type="month"
-                value={mesSelecionado}
-                onChange={(event) => setMesSelecionado(event.target.value)}
-                aria-label="Selecionar mês"
-              />
-              <button type="button" onClick={() => mudarMes(1)}>
-                Próximo →
-              </button>
+              <div className={styles.navegacaoMes}>
+                <button type="button" onClick={() => mudarMes(-1)}>
+                  ← Anterior
+                </button>
+                <input
+                  type="month"
+                  value={mesSelecionado}
+                  onChange={(event) => setMesSelecionado(event.target.value)}
+                  aria-label="Selecionar mês"
+                />
+                <button type="button" onClick={() => mudarMes(1)}>
+                  Próximo →
+                </button>
+              </div>
             </div>
           </div>
 
@@ -280,7 +307,9 @@ export default function CadastroDespesas() {
                     <th>Data</th>
                     <th>Descrição</th>
                     <th>Valor</th>
-                    <th className={styles.colunaAcoes}>Ações</th>
+                    <th className={styles.colunaAcoes} data-nao-imprimir>
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -289,7 +318,7 @@ export default function CadastroDespesas() {
                       <td>{String(despesa.data).slice(8, 10)}</td>
                       <td>{despesa.descricao}</td>
                       <td>{formatadorMoeda.format(Number(despesa.valor) / 100)}</td>
-                      <td className={styles.acoesTabela}>
+                      <td className={styles.acoesTabela} data-nao-imprimir>
                         <button
                           className={styles.botaoEditar}
                           type="button"

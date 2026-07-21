@@ -6,6 +6,7 @@ import TituloPagina from '../../components/TituloPagina';
 import SelectPesquisavel from '../../components/SelectPesquisavel';
 import { encontrarRelatorio } from '../../config/relatorios';
 import { listarClientes } from '../../services/clienteService';
+import { imprimirArea } from '../../services/impressaoService';
 import { gerarRelatorio } from '../../services/relatorioService';
 import styles from '../../styles/Relatorios.module.css';
 
@@ -262,6 +263,13 @@ export default function PaginaRelatorio() {
     }
   }
 
+  function imprimirRelatorio() {
+    imprimirArea({
+      elementoId: 'relatorio-impressao',
+      titulo: `${relatorio.titulo} - ${formatarData(periodoResultado.data_inicio)} a ${formatarData(periodoResultado.data_fim)}`,
+    });
+  }
+
   if (!router.isReady) return null;
 
   if (!relatorio) {
@@ -369,8 +377,23 @@ export default function PaginaRelatorio() {
         {erro && <div className={styles.erro}>{erro}</div>}
 
         {resultado && (
-          <section className={styles.resultado}>
-            <div className={styles.cabecalhoResultado}>
+          <section
+            id="relatorio-impressao"
+            className={`${styles.resultado} ${styles.areaImpressao}`}
+          >
+            <header className={styles.cabecalhoImpressao}>
+              <span>Depósito Fácil</span>
+              <h1>{relatorio.titulo}</h1>
+              <p>
+                Período: {formatarData(periodoResultado.data_inicio)} até{' '}
+                {formatarData(periodoResultado.data_fim)}
+              </p>
+              <small>
+                <strong>Critério:</strong> {relatorio.criterio}
+              </small>
+            </header>
+
+            <div className={styles.cabecalhoResultado} data-nao-imprimir>
               <div>
                 <span>Resultado gerado</span>
                 <h2>
@@ -378,6 +401,13 @@ export default function PaginaRelatorio() {
                   {formatarData(periodoResultado.data_fim)}
                 </h2>
               </div>
+              <button
+                className={styles.botaoImprimir}
+                type="button"
+                onClick={imprimirRelatorio}
+              >
+                Imprimir / salvar PDF
+              </button>
             </div>
             <Resultado tipo={tipo} resultado={resultado} />
           </section>

@@ -191,11 +191,35 @@
 }
 
 .cabecalhoResultado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
 .cabecalhoResultado h2 {
   margin-top: 5px;
+}
+
+.botaoImprimir {
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #334e68;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.botaoImprimir:hover {
+  background: #243b53;
+}
+
+.cabecalhoImpressao {
+  display: none;
 }
 
 .metricas {
@@ -290,10 +314,111 @@
     grid-template-columns: 1fr;
   }
 
+  .cabecalhoResultado {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .botaoImprimir {
+    width: 100%;
+  }
+
   .introducao,
   .cartao,
   .resultado,
   .cartaoRelatorio {
     padding: 18px;
+  }
+}
+
+@media print {
+  .areaImpressao {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #000000;
+    box-shadow: none;
+  }
+
+  .cabecalhoImpressao {
+    display: block;
+    margin-bottom: 8mm;
+    padding-bottom: 5mm;
+    border-bottom: 1px solid #94a3b8;
+  }
+
+  .cabecalhoImpressao > span {
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cabecalhoImpressao h1 {
+    margin: 2mm 0 1mm;
+    font-size: 18pt;
+  }
+
+  .cabecalhoImpressao p {
+    margin-bottom: 2mm;
+    font-size: 10pt;
+  }
+
+  .cabecalhoImpressao small {
+    color: #334155;
+    font-size: 8.5pt;
+  }
+
+  .metricas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4mm;
+    margin-bottom: 6mm;
+  }
+
+  .metrica {
+    break-inside: avoid;
+    padding: 4mm;
+    border-radius: 2mm;
+    background: #ffffff;
+  }
+
+  .metrica span {
+    font-size: 8pt;
+  }
+
+  .metrica strong {
+    font-size: 13pt;
+  }
+
+  .metrica small {
+    font-size: 8pt;
+  }
+
+  .tabelaContainer {
+    overflow: visible;
+  }
+
+  .tabela {
+    font-size: 9pt;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 2.5mm 2mm;
+    border-color: #cbd5e1;
+  }
+
+  .tabela th {
+    color: #334155;
+    font-size: 8pt;
+  }
+
+  .tabela tr {
+    break-inside: avoid;
+  }
+
+  .estado {
+    padding: 8mm 0;
   }
 }

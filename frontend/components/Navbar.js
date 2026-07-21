@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { useUsuarioAutenticado } from '../contexts/AuthContext';
 import styles from '../styles/Navbar.module.css';
 
 const Navbar = () => {
   const [menuAberto, setMenuAberto] = useState(false);
   const [submenuAberto, setSubmenuAberto] = useState(null);
+  const usuario = useUsuarioAutenticado();
+  const podeVerRelatorios = ['admin', 'gerente'].includes(
+    usuario?.accessLevel,
+  );
 
   function fecharMenu() {
     setMenuAberto(false);
@@ -77,7 +82,13 @@ const Navbar = () => {
             <li><Link href="/registro/vendas" onClick={fecharMenu}>Vendas</Link></li>
             <li><Link href="/registro/encomendas" onClick={fecharMenu}>Encomendas</Link></li>
             <li><Link href="/estoque" onClick={fecharMenu}>Estoque</Link></li>
-            <li><Link href="/relatorios" onClick={fecharMenu}>Relatórios</Link></li>
+            {podeVerRelatorios && (
+              <li>
+                <Link href="/relatorios" onClick={fecharMenu}>
+                  Relatórios
+                </Link>
+              </li>
+            )}
           </ul>
         </li>
       </ul>

@@ -76,6 +76,7 @@
 
 .acoesFormulario,
 .acoesTabela,
+.acoesCabecalho,
 .navegacaoMes {
   display: flex;
   align-items: center;
@@ -87,6 +88,7 @@
 .botaoSecundario,
 .botaoEditar,
 .botaoExcluir,
+.botaoImprimir,
 .navegacaoMes button {
   padding: 10px 14px;
   border: 1px solid transparent;
@@ -100,6 +102,21 @@
 .botaoPrimario {
   color: #ffffff;
   background: #15803d;
+}
+
+.botaoImprimir {
+  border-color: #334155;
+  color: #ffffff;
+  background: #334155;
+}
+
+.botaoImprimir:hover {
+  background: #1e293b;
+}
+
+.botaoImprimir:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .botaoSecundario,
@@ -246,6 +263,7 @@
   }
 
   .cabecalhoLista,
+  .acoesCabecalho,
   .navegacaoMes {
     align-items: stretch;
     flex-direction: column;
@@ -258,5 +276,92 @@
   .acoesTabela {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+.cabecalhoImpressao {
+  display: none;
+}
+
+@media print {
+  .areaImpressao {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #000000;
+    box-shadow: none;
+  }
+
+  .cabecalhoImpressao {
+    display: block;
+    margin-bottom: 8mm;
+    padding-bottom: 5mm;
+    border-bottom: 1px solid #94a3b8;
+  }
+
+  .cabecalhoImpressao span {
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .cabecalhoImpressao h1 {
+    margin: 2mm 0 1mm;
+    font-size: 18pt;
+  }
+
+  .cabecalhoImpressao p {
+    font-size: 10pt;
+    text-transform: capitalize;
+  }
+
+  .cabecalhoLista {
+    margin-bottom: 5mm;
+  }
+
+  .cabecalhoLista h2 {
+    color: #000000;
+    font-size: 12pt;
+  }
+
+  .cabecalhoLista p {
+    color: #334155;
+    font-size: 9pt;
+  }
+
+  .tabelaContainer {
+    overflow: visible;
+  }
+
+  .tabela {
+    font-size: 9pt;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 2.5mm 2mm;
+    border-color: #cbd5e1;
+  }
+
+  .tabela th {
+    color: #334155;
+    font-size: 8pt;
+  }
+
+  .tabela tr,
+  .totalMes {
+    break-inside: avoid;
+  }
+
+  .totalMes {
+    margin-top: 5mm;
+    padding-top: 4mm;
+  }
+
+  .totalMes strong {
+    color: #000000;
+    font-size: 12pt;
   }
 }
