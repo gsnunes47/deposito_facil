@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { obterVisualTenant } from '../config/tenants';
 import { AuthProvider } from '../contexts/AuthContext';
 import { obterRotaLogin, verificarSessao } from '../services/authService';
 import '../styles/login.css';
@@ -13,6 +14,32 @@ export default function App({ Component, pageProps }) {
   const publica = rotaPublica(router.pathname);
   const [autorizado, setAutorizado] = useState(publica);
   const [usuario, setUsuario] = useState(null);
+  const tenantIdLogin = router.pathname.startsWith('/login/')
+    ? router.query.tenantId
+    : null;
+  const visualTenant = obterVisualTenant(usuario?.tenantId ?? tenantIdLogin);
+
+  useEffect(() => {
+    if (!visualTenant) return undefined;
+
+    const body = document.body;
+    body.style.backgroundImage = `url("${visualTenant.background}")`;
+    body.style.backgroundColor = visualTenant.backgroundColor;
+    body.style.backgroundSize = visualTenant.backgroundSize;
+    body.style.backgroundPosition = visualTenant.backgroundPosition;
+
+    return () => {
+      body.style.removeProperty('background-image');
+      body.style.removeProperty('background-color');
+      body.style.removeProperty('background-size');
+      body.style.removeProperty('background-position');
+    };
+  }, [
+    visualTenant?.background,
+    visualTenant?.backgroundColor,
+    visualTenant?.backgroundSize,
+    visualTenant?.backgroundPosition,
+  ]);
 
   useEffect(() => {
     let ativo = true;
