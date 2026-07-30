@@ -21,7 +21,7 @@ const VISUAIS_TENANT = {
   },
   6: {
     ...visualMeaPostePadrao,
-    background: '/tenants/5/background.png',
+    background: '/tenants/6/background.png',
   },
 };
 
