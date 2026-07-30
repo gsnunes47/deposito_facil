@@ -10,6 +10,7 @@ t {
 
 body {
   font-family: Arial, sans-serif;
+  background-color: #808992;
 
   /* background-image: url('../assets/curinthia.jpg'); */
   background-size: cover; /* Faz a imagem cobrir toda a área */
