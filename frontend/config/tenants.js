@@ -4,13 +4,23 @@ const visualBananasFerreira = {
   backgroundPosition: 'right 24px bottom 24px',
 };
 
+const visualMeaPostePadrao = {                            
+  backgroundColor: '#FFFFFF',
+  backgroundSize: 'clamp(220px, 25vw, 420px) auto',
+  backgroundPosition: 'right 24px bottom 24px',
+}
+
 const VISUAIS_TENANT = {
   2: {
-    ...visualBananasFerreira,
+    ...visualMeaPostePadrao,
     background: '/tenants/2/background.png',
   },
   5: {
     ...visualBananasFerreira,
+    background: '/tenants/5/background.png',
+  },
+  6: {
+    ...visualMeaPostePadrao,
     background: '/tenants/5/background.png',
   },
 };
