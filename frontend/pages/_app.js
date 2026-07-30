@@ -14,10 +14,7 @@ export default function App({ Component, pageProps }) {
   const publica = rotaPublica(router.pathname);
   const [autorizado, setAutorizado] = useState(publica);
   const [usuario, setUsuario] = useState(null);
-  const tenantIdLogin = router.pathname.startsWith('/login/')
-    ? router.query.tenantId
-    : null;
-  const visualTenant = obterVisualTenant(usuario?.tenantId ?? tenantIdLogin);
+  const visualTenant = obterVisualTenant(usuario?.tenantId);
 
   useEffect(() => {
     if (!visualTenant) return undefined;
