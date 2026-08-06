@@ -43,6 +43,8 @@ export default function RegistroVendas() {
   const [vendasQuitacao, setVendasQuitacao] = useState(null);
   const [formaQuitacao, setFormaQuitacao] = useState('');
   const [salvandoQuitacao, setSalvandoQuitacao] = useState(false);
+  const [mesVendasAbertas, setMesVendasAbertas] = useState('');
+  const [mesVendasFechadas, setMesVendasFechadas] = useState('');
 
   async function carregarVendas() {
     const [abertas, fechadas] = await Promise.all([
@@ -82,13 +84,21 @@ export default function RegistroVendas() {
   );
 
   const vendasAbertasFiltradas = vendasAbertas.filter(
-    (venda) => String(venda.cliente_id) === clienteId,
+    (venda) =>
+      String(venda.cliente_id) === clienteId &&
+      (!mesVendasAbertas || venda.data?.slice(0, 7) === mesVendasAbertas),
   );
   const vendasFechadasFiltradas = vendasFechadas.filter(
-    (venda) => String(venda.cliente_id) === clienteId,
+    (venda) =>
+      String(venda.cliente_id) === clienteId &&
+      (!mesVendasFechadas || venda.data?.slice(0, 7) === mesVendasFechadas),
   );
   const debitoTotal = vendasAbertasFiltradas.reduce(
     (total, venda) => total + calcularDebito(venda),
+    0,
+  );
+  const totalVendasFechadas = vendasFechadasFiltradas.reduce(
+    (total, venda) => total + Number(venda.total ?? 0),
     0,
   );
   const vendasSelecionadasDetalhes = vendasAbertasFiltradas.filter((venda) =>
@@ -286,16 +296,30 @@ export default function RegistroVendas() {
               <div className={styles.cabecalhoAbertas}>
                 <h2>Vendas Abertas</h2>
 
-                {vendasAbertasFiltradas.length > 0 && (
-                  <label className={styles.selecionarTodas}>
+                <div className={styles.controlesAbertas}>
+                  {vendasAbertasFiltradas.length > 0 && (
+                    <label className={styles.selecionarTodas}>
+                      <input
+                        type="checkbox"
+                        checked={todasSelecionadas}
+                        onChange={alternarTodasVendas}
+                      />
+                      Selecionar todas
+                    </label>
+                  )}
+
+                  <label className={styles.filtroMes}>
+                    <span>Mês</span>
                     <input
-                      type="checkbox"
-                      checked={todasSelecionadas}
-                      onChange={alternarTodasVendas}
+                      type="month"
+                      value={mesVendasAbertas}
+                      onChange={(event) => {
+                        setMesVendasAbertas(event.target.value);
+                        setVendasSelecionadas([]);
+                      }}
                     />
-                    Selecionar todas
                   </label>
-                )}
+                </div>
               </div>
 
               {vendasSelecionadasDetalhes.length > 0 && (
@@ -320,7 +344,11 @@ export default function RegistroVendas() {
                 </div>
               )}
               {vendasAbertasFiltradas.length === 0 ? (
-                <p className={styles.estado}>Nenhuma venda aberta.</p>
+                <p className={styles.estado}>
+                  {mesVendasAbertas
+                    ? 'Nenhuma venda aberta neste mês.'
+                    : 'Nenhuma venda aberta.'}
+                </p>
               ) : (
                 vendasAbertasFiltradas.map((venda) => (
                   <RegistroVendaCard
@@ -340,10 +368,42 @@ export default function RegistroVendas() {
               )}
             </section>
 
+            <section className={`${styles.resumoDebito} ${styles.resumoFechadas}`}>
+              <div>
+                <span>Total de vendas fechadas</span>
+                <small>
+                  {vendasFechadasFiltradas.length}{' '}
+                  {vendasFechadasFiltradas.length === 1
+                    ? 'venda fechada'
+                    : 'vendas fechadas'}
+                </small>
+              </div>
+              <strong>
+                {formatadorMoeda.format(totalVendasFechadas / 100)}
+              </strong>
+            </section>
+
             <section className={styles.secao}>
-              <h2>Vendas Fechadas</h2>
+              <div className={styles.cabecalhoAbertas}>
+                <h2>Vendas Fechadas</h2>
+
+                <label className={styles.filtroMes}>
+                  <span>Mês</span>
+                  <input
+                    type="month"
+                    value={mesVendasFechadas}
+                    onChange={(event) =>
+                      setMesVendasFechadas(event.target.value)
+                    }
+                  />
+                </label>
+              </div>
               {vendasFechadasFiltradas.length === 0 ? (
-                <p className={styles.estado}>Nenhuma venda fechada.</p>
+                <p className={styles.estado}>
+                  {mesVendasFechadas
+                    ? 'Nenhuma venda fechada neste mês.'
+                    : 'Nenhuma venda fechada.'}
+                </p>
               ) : (
                 vendasFechadasFiltradas.map((venda) => (
                   <RegistroVendaCard
