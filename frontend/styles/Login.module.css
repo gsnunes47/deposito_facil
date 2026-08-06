@@ -159,6 +159,51 @@
   color: #96a2ae;
 }
 
+.campoSenha {
+  position: relative;
+}
+
+.campoSenha input {
+  padding-right: 48px;
+}
+
+.botaoSenha {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  color: #64768a;
+  background: transparent;
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.botaoSenha:hover {
+  color: #354f68;
+  background: #e9eef3;
+}
+
+.botaoSenha:focus-visible {
+  outline: 2px solid #607f9e;
+  outline-offset: 2px;
+}
+
+.botaoSenha svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .botao {
   width: 100%;
   margin-top: 26px;

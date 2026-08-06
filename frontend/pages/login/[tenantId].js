@@ -10,6 +10,7 @@ export default function Login() {
 
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [mensagem, setMensagem] = useState('');
 
@@ -84,15 +85,34 @@ export default function Login() {
 
               <div className={styles.campo}>
                 <label htmlFor="password">Senha</label>
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  autoComplete="current-password"
-                  placeholder="Digite sua senha"
-                  required
-                />
+                <div className={styles.campoSenha}>
+                  <input
+                    id="password"
+                    type={senhaVisivel ? 'text' : 'password'}
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    autoComplete="current-password"
+                    placeholder="Digite sua senha"
+                    required
+                  />
+                  <button
+                    className={styles.botaoSenha}
+                    type="button"
+                    onClick={() => setSenhaVisivel((visivel) => !visivel)}
+                    aria-label={senhaVisivel ? 'Ocultar senha' : 'Mostrar senha'}
+                    aria-pressed={senhaVisivel}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      focusable="false"
+                    >
+                      <path d="M2.1 12s3.6-6 9.9-6 9.9 6 9.9 6-3.6 6-9.9 6-9.9-6-9.9-6Z" />
+                      <circle cx="12" cy="12" r="2.8" />
+                      {!senhaVisivel && <path d="m4 4 16 16" />}
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               {mensagem && (
