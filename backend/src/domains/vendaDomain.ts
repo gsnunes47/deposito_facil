@@ -1,6 +1,7 @@
 import prisma from '../repositories/db.js';
 import produtoDomain from './produtoDomain.js';
 import type { Venda } from '@prisma/client';
+import { obterConfiguracaoComprovante } from '../config/comprovantes.js';
 
 interface clienteInterface {
   tenant_id: number;
@@ -108,6 +109,86 @@ class VendaDomain {
     });
 
     return vendas;
+  }
+
+  async getComprovanteVenda(vendaId: number, tenantId: number) {
+    const configuracao = obterConfiguracaoComprovante(tenantId);
+
+    if (!configuracao) return null;
+
+    const venda = await prisma.venda.findFirst({
+      where: {
+        id: vendaId,
+        tenant_id: tenantId,
+      },
+      select: {
+        id: true,
+        data: true,
+        total: true,
+        produtos: true,
+        cliente: {
+          select: {
+            nome: true,
+          },
+        },
+      },
+    });
+
+    if (!venda) return null;
+
+    const itensVenda = Array.isArray(venda.produtos) ? venda.produtos : [];
+    const produtoIds = itensVenda
+      .map((item: any) => Number(item.id))
+      .filter(Number.isInteger);
+    const produtos = await prisma.produto.findMany({
+      where: {
+        id: { in: produtoIds },
+        tenant_id: tenantId,
+      },
+      select: {
+        id: true,
+        nome: true,
+      },
+    });
+    const nomesPorId = new Map(
+      produtos.map((produto) => [produto.id, produto.nome]),
+    );
+
+    return {
+      configuracao,
+      venda: {
+        id: venda.id,
+        data: venda.data,
+        cliente: venda.cliente.nome ?? 'Cliente não informado',
+        itens: itensVenda.map((item: any) => ({
+          produtoId: Number(item.id),
+          nome: nomesPorId.get(Number(item.id)) ?? `Produto #${item.id}`,
+          quantidade: Number(item.quantidade),
+          valorUnitario: Number(item.valor_unitario),
+          subtotal: Number(item.quantidade) * Number(item.valor_unitario),
+        })),
+        total: venda.total,
+      },
+    };
+  }
+
+  async getComprovantesVendas(vendaIds: number[], tenantId: number) {
+    const comprovantes = await Promise.all(
+      vendaIds.map((vendaId) => this.getComprovanteVenda(vendaId, tenantId)),
+    );
+
+    if (comprovantes.some((comprovante) => !comprovante)) return null;
+
+    const vendas = comprovantes.map((comprovante) => comprovante!.venda);
+
+    return {
+      configuracao: comprovantes[0]!.configuracao,
+      vendas,
+      totalGeral: vendas.reduce(
+        (total, venda) => total + Number(venda.total),
+        0,
+      ),
+    };
   }
 
   async getVendaPagamentos(venda_id: number, tenantId: number) {

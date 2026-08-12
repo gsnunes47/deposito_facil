@@ -20,3 +20,14 @@ export function excluirVenda(id) {
     method: 'DELETE',
   });
 }
+
+export function obterComprovanteVenda(id) {
+  return apiRequest(`/venda/${id}/comprovante`);
+}
+
+export function obterComprovantesVendas(ids) {
+  return apiRequest('/venda/comprovantes', {
+    method: 'POST',
+    body: JSON.stringify({ venda_ids: ids }),
+  });
+}

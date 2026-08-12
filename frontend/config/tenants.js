@@ -11,10 +11,10 @@ const visualMeaPostePadrao = {
 }
 
 const VISUAIS_TENANT = {
-  2: {
-    ...visualMeaPostePadrao,
+  // 2: {
+    // ...visualMeaPostePadrao,
     // background: '/tenants/2/background.png',
-  },
+  // },
   5: {
     ...visualBananasFerreira,
     background: '/tenants/5/background.png',

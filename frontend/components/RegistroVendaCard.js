@@ -48,6 +48,8 @@ export default function RegistroVendaCard({
   onQuitarVenda,
   onExcluirPagamento,
   onExcluirVenda,
+  onImprimirVenda,
+  imprimindo = false,
 }) {
   const itens = Array.isArray(venda.produtos) ? venda.produtos : [];
   const pagamentos = venda.pagamentos ?? [];
@@ -87,6 +89,16 @@ export default function RegistroVendaCard({
       <p className={styles.valor}>
         Total: <strong>{formatarCentavos(venda.total)}</strong>
       </p>
+
+      <div className={styles.acoesComprovante}>
+        <button
+          type="button"
+          onClick={() => onImprimirVenda(venda)}
+          disabled={imprimindo}
+        >
+          {imprimindo ? 'Preparando impressão...' : 'Imprimir comprovante'}
+        </button>
+      </div>
 
       {!fechada && (
         <>

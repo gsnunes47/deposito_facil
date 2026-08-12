@@ -21,6 +21,7 @@ export default function FormularioMovimentacao({
   carregando,
   erroCarregamento,
   exibirData = false,
+  children,
 }) {
   const [entidadeId, setEntidadeId] = useState('');
   const [data, setData] = useState('');
@@ -234,6 +235,8 @@ export default function FormularioMovimentacao({
             {enviando ? 'Processando...' : textoBotao}
           </button>
         </form>
+
+        {children}
       </main>
     </>
   );

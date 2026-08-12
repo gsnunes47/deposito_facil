@@ -80,7 +80,69 @@ export async function createVenda(request: Request, response: Response) {
   return response.status(200).send({
     message: 'Venda criada com sucesso',
     venda_id: vendaNova.venda_id,
+    comprovante: await vendaDomain.getComprovanteVenda(
+      vendaNova.venda_id,
+      request.user.tenantId,
+    ),
   });
+}
+
+export async function getComprovanteVenda(
+  request: Request,
+  response: Response,
+) {
+  const vendaId = Number(request.params.id);
+
+  if (!Number.isInteger(vendaId) || vendaId <= 0) {
+    return response.status(400).send({
+      error: 'ID da venda é obrigatório e deve ser um número válido',
+    });
+  }
+
+  const comprovante = await vendaDomain.getComprovanteVenda(
+    vendaId,
+    request.user.tenantId,
+  );
+
+  if (!comprovante) {
+    return response.status(404).send({
+      error: 'Venda ou configuração de comprovante não encontrada',
+    });
+  }
+
+  return response.status(200).send(comprovante);
+}
+
+export async function getComprovantesVendas(
+  request: Request,
+  response: Response,
+) {
+  const vendaIds = request.body.venda_ids;
+
+  if (
+    !Array.isArray(vendaIds) ||
+    vendaIds.length === 0 ||
+    vendaIds.some(
+      (vendaId) => !Number.isInteger(Number(vendaId)) || Number(vendaId) <= 0,
+    )
+  ) {
+    return response.status(400).send({
+      error: 'Informe uma lista de vendas válida',
+    });
+  }
+
+  const comprovantes = await vendaDomain.getComprovantesVendas(
+    [...new Set(vendaIds.map(Number))],
+    request.user.tenantId,
+  );
+
+  if (!comprovantes) {
+    return response.status(404).send({
+      error: 'Venda ou configuração de comprovante não encontrada',
+    });
+  }
+
+  return response.status(200).send(comprovantes);
 }
 
 export async function deleteVenda(request: Request, response: Response) {

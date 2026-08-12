@@ -1,0 +1,96 @@
+.comprovante {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  padding: 3mm;
+  color: #000000;
+  background: #ffffff;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.recibo + .recibo {
+  margin-top: 6mm;
+  padding-top: 3mm;
+  border-top: 1px dashed #000000;
+}
+
+.cabecalho {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.cabecalho strong {
+  margin-bottom: 3px;
+  font-size: 11px;
+}
+
+.dadosVenda {
+  margin-top: 12px;
+}
+
+.dadosVenda p {
+  margin: 2px 0;
+}
+
+.separador {
+  margin: 8px 0;
+  border-top: 1px dashed #000000;
+}
+
+.itens {
+  display: grid;
+  gap: 6px;
+}
+
+.linhaItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px 60px 60px;
+  gap: 4px;
+  align-items: start;
+}
+
+.linhaItem span:not(:first-child) {
+  text-align: right;
+}
+
+.linhaItem span:first-child {
+  overflow-wrap: anywhere;
+}
+
+.titulos {
+  font-weight: 700;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.separadorGeral {
+  margin: 12px 0 8px;
+  border-top: 2px solid #000000;
+}
+
+.totalGeral {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rodape {
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+@media print {
+  .comprovante {
+    font-size: 10px;
+  }
+}

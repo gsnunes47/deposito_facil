@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import ComprovanteVenda from '../../components/ComprovanteVenda';
 import Navbar from '../../components/Navbar';
 import TituloPagina from '../../components/TituloPagina';
 import SelectPesquisavel from '../../components/SelectPesquisavel';
@@ -16,8 +17,13 @@ import {
   excluirVenda,
   listarVendasAbertas,
   listarVendasFechadas,
+  obterComprovanteVenda,
+  obterComprovantesVendas,
 } from '../../services/vendaService';
+import { imprimirComprovantesVenda } from '../../services/impressaoService';
 import styles from '../../styles/RegistroVendas.module.css';
+
+const ID_COMPROVANTE = 'comprovante-venda-registro';
 
 const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -45,6 +51,9 @@ export default function RegistroVendas() {
   const [salvandoQuitacao, setSalvandoQuitacao] = useState(false);
   const [mesVendasAbertas, setMesVendasAbertas] = useState('');
   const [mesVendasFechadas, setMesVendasFechadas] = useState('');
+  const [comprovantes, setComprovantes] = useState([]);
+  const [totalGeralComprovantes, setTotalGeralComprovantes] = useState(null);
+  const [vendaImprimindoId, setVendaImprimindoId] = useState(null);
 
   async function carregarVendas() {
     const [abertas, fechadas] = await Promise.all([
@@ -77,6 +86,52 @@ export default function RegistroVendas() {
 
     carregarDados();
   }, []);
+
+  useEffect(() => {
+    if (comprovantes.length === 0) return;
+
+    try {
+      imprimirComprovantesVenda(comprovantes, ID_COMPROVANTE);
+    } finally {
+      setComprovantes([]);
+      setTotalGeralComprovantes(null);
+      setVendaImprimindoId(null);
+    }
+  }, [comprovantes]);
+
+  async function imprimirVenda(venda) {
+    setMensagem(null);
+    setVendaImprimindoId(venda.id);
+
+    try {
+      setTotalGeralComprovantes(null);
+      setComprovantes([await obterComprovanteVenda(venda.id)]);
+    } catch (error) {
+      setVendaImprimindoId(null);
+      setMensagem({ tipo: 'erro', texto: error.message });
+    }
+  }
+
+  async function imprimirVendasSelecionadas() {
+    setMensagem(null);
+    setVendaImprimindoId('selecionadas');
+
+    try {
+      const fechamento = await obterComprovantesVendas(
+        vendasSelecionadasDetalhes.map((venda) => venda.id),
+      );
+      setTotalGeralComprovantes(fechamento.totalGeral);
+      setComprovantes(
+        fechamento.vendas.map((venda) => ({
+          configuracao: fechamento.configuracao,
+          venda,
+        })),
+      );
+    } catch (error) {
+      setVendaImprimindoId(null);
+      setMensagem({ tipo: 'erro', texto: error.message });
+    }
+  }
 
   const produtosPorId = useMemo(
     () => Object.fromEntries(produtos.map((produto) => [produto.id, produto])),
@@ -335,12 +390,23 @@ export default function RegistroVendas() {
                       Total: {formatadorMoeda.format(totalSelecionado / 100)}
                     </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => abrirQuitacao(vendasSelecionadasDetalhes)}
-                  >
-                    Quitar selecionadas
-                  </button>
+                  <div className={styles.acoesSelecionadas}>
+                    <button
+                      type="button"
+                      onClick={imprimirVendasSelecionadas}
+                      disabled={vendaImprimindoId === 'selecionadas'}
+                    >
+                      {vendaImprimindoId === 'selecionadas'
+                        ? 'Preparando impressão...'
+                        : 'Imprimir selecionadas'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => abrirQuitacao(vendasSelecionadasDetalhes)}
+                    >
+                      Quitar selecionadas
+                    </button>
+                  </div>
                 </div>
               )}
               {vendasAbertasFiltradas.length === 0 ? (
@@ -363,6 +429,8 @@ export default function RegistroVendas() {
                     }
                     onExcluirPagamento={removerPagamento}
                     onExcluirVenda={removerVenda}
+                    onImprimirVenda={imprimirVenda}
+                    imprimindo={vendaImprimindoId === venda.id}
                   />
                 ))
               )}
@@ -411,12 +479,20 @@ export default function RegistroVendas() {
                     venda={venda}
                     produtosPorId={produtosPorId}
                     fechada
+                    onImprimirVenda={imprimirVenda}
+                    imprimindo={vendaImprimindoId === venda.id}
                   />
                 ))
               )}
             </section>
           </>
         )}
+
+        <ComprovanteVenda
+          comprovantes={comprovantes}
+          totalGeral={totalGeralComprovantes}
+          elementoId={ID_COMPROVANTE}
+        />
       </main>
 
       {vendaPagamento && (

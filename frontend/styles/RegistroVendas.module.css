@@ -200,6 +200,16 @@
   cursor: pointer;
 }
 
+.barraQuitacao .acoesSelecionadas {
+  display: flex;
+  gap: 10px;
+}
+
+.barraQuitacao button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .secao h2 {
   margin-bottom: 18px;
   color: #1f2937;
@@ -240,6 +250,26 @@
 
 .valor {
   margin-top: 14px;
+}
+
+.acoesComprovante {
+  margin-top: 14px;
+}
+
+.acoesComprovante button {
+  padding: 9px 13px;
+  border: 1px solid #496781;
+  border-radius: 7px;
+  color: #354f68;
+  background: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+
+.acoesComprovante button:disabled {
+  opacity: 0.6;
+  cursor: wait;
 }
 
 .acoes {
@@ -441,6 +471,10 @@
 
   .barraQuitacao button {
     width: 100%;
+  }
+
+  .barraQuitacao .acoesSelecionadas {
+    flex-direction: column;
   }
 
   .pagamentos li {
