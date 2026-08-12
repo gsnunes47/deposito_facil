@@ -5,6 +5,10 @@ const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL',
 });
 
+function possuiTexto(valor) {
+  return typeof valor === 'string' && valor.trim().length > 0;
+}
+
 function formatarCentavos(valor) {
   return formatadorMoeda.format(Number(valor ?? 0) / 100);
 }
@@ -71,6 +75,12 @@ export default function ComprovanteVenda({
   if (lista.length === 0) return null;
 
   const configuracao = lista[0].configuracao;
+  const possuiCabecalho = [
+    configuracao.nomeEmpresa,
+    configuracao.documento,
+    configuracao.telefone,
+    configuracao.endereco,
+  ].some(possuiTexto);
 
   return (
     <section
@@ -79,12 +89,22 @@ export default function ComprovanteVenda({
       style={{ width: `${configuracao.larguraPapelMm - 6}mm` }}
       aria-hidden="true"
     >
-      <header className={styles.cabecalho}>
-        <strong>{configuracao.nomeEmpresa}</strong>
-        <span>{configuracao.documento}</span>
-        <span>{configuracao.telefone}</span>
-        <span>{configuracao.endereco}</span>
-      </header>
+      {possuiCabecalho && (
+        <header className={styles.cabecalho}>
+          {possuiTexto(configuracao.nomeEmpresa) && (
+            <strong>{configuracao.nomeEmpresa.trim()}</strong>
+          )}
+          {possuiTexto(configuracao.documento) && (
+            <span>{configuracao.documento.trim()}</span>
+          )}
+          {possuiTexto(configuracao.telefone) && (
+            <span>{configuracao.telefone.trim()}</span>
+          )}
+          {possuiTexto(configuracao.endereco) && (
+            <span>{configuracao.endereco.trim()}</span>
+          )}
+        </header>
+      )}
 
       {lista.map((item) => (
         <ConteudoComprovante key={item.venda.id} comprovante={item} />
@@ -100,8 +120,8 @@ export default function ComprovanteVenda({
         </>
       )}
 
-      {configuracao.mensagemRodape && (
-        <p className={styles.rodape}>{configuracao.mensagemRodape}</p>
+      {possuiTexto(configuracao.mensagemRodape) && (
+        <p className={styles.rodape}>{configuracao.mensagemRodape.trim()}</p>
       )}
     </section>
   );

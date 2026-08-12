@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { obterConfiguracaoComprovante } from '../../src/config/comprovantes.js';
 
 describe('Configuração de comprovantes', () => {
-  it('deve retornar a configuração fictícia para o tenant 2', () => {
+  it('deve retornar a configuração atual para o tenant 2', () => {
     expect(obterConfiguracaoComprovante(2)).toEqual({
-      nomeEmpresa: 'EMPRESA EXEMPLO DO TENANT 2',
-      documento: 'CNPJ: 99.999.999/0001-99',
-      telefone: 'Whatsapp: (99) 99999-8888',
+      nomeEmpresa: 'BANANAS CLIMATIZADAS JOSÉ LUIZ - EQUIPE MAX LHP',
+      documento: '',
+      telefone: 'Whatsapp: (11) 98361-0736',
       endereco:
-        'Rua Exemplo, 999 - Centro - CEP: 99.999-888',
+        'Rua Alves Seixas, 267 - Vila União - CEP:03920-050',
       larguraPapelMm: 80,
     });
   });

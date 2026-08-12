@@ -38,14 +38,29 @@ export function imprimirArea({
         visibility: hidden !important;
       }
 
+      body.${CLASSE_IMPRESSAO} {
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        background: none !important;
+      }
+
+      body.${CLASSE_IMPRESSAO} *:not(.${CLASSE_AREA}):not(.${CLASSE_AREA} *):not(:has(.${CLASSE_AREA})) {
+        display: none !important;
+      }
+
+      body.${CLASSE_IMPRESSAO} *:has(.${CLASSE_AREA}) {
+        display: contents !important;
+      }
+
       body.${CLASSE_IMPRESSAO} .${CLASSE_AREA},
       body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} * {
         visibility: visible !important;
       }
 
       body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} {
-        position: absolute !important;
-        inset: 0 auto auto 0 !important;
+        position: ${larguraPapelMm ? 'static' : 'absolute'} !important;
+        inset: ${larguraPapelMm ? 'auto' : '0 auto auto 0'} !important;
         width: ${larguraPapelMm ? `${larguraPapelMm}mm` : '100%'} !important;
         padding: ${larguraPapelMm ? `${margemMm}mm` : '0'} !important;
         box-sizing: border-box !important;
