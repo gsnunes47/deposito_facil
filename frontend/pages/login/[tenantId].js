@@ -1,8 +1,14 @@
 import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Modal from '../../components/Modal';
 import { autenticar } from '../../services/authService';
 import styles from '../../styles/Login.module.css';
+
+const CREDENCIAIS_DEMO = {
+  login: 'tester',
+  password: 'Tester4321',
+};
 
 export default function Login() {
   const router = useRouter();
@@ -13,8 +19,16 @@ export default function Login() {
   const [senhaVisivel, setSenhaVisivel] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [mensagem, setMensagem] = useState('');
+  const [modalDemoAberto, setModalDemoAberto] = useState(true);
 
   const tenantValido = /^\d+$/.test(tenantId ?? '') && Number(tenantId) > 0;
+  const tenantDemo = router.isReady && String(tenantId) === '2';
+
+  function usarCredenciaisDemo() {
+    setLogin(CREDENCIAIS_DEMO.login);
+    setPassword(CREDENCIAIS_DEMO.password);
+    setModalDemoAberto(false);
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -135,6 +149,44 @@ export default function Login() {
             )}
           </div>
         </section>
+
+        {tenantDemo && modalDemoAberto && (
+          <Modal
+            titulo="Acesso ao ambiente de demonstração"
+            onClose={() => setModalDemoAberto(false)}
+          >
+            <div className={styles.conteudoDemo}>
+              <p>
+                Este ambiente está disponível para conhecer as funcionalidades
+                do Depósito Fácil. Use as credenciais abaixo para entrar:
+              </p>
+
+              <dl className={styles.credenciaisDemo}>
+                <div>
+                  <dt>Usuário</dt>
+                  <dd>{CREDENCIAIS_DEMO.login}</dd>
+                </div>
+                <div>
+                  <dt>Senha</dt>
+                  <dd>{CREDENCIAIS_DEMO.password}</dd>
+                </div>
+              </dl>
+
+              <p className={styles.avisoDemo}>
+                Os dados deste ambiente são compartilhados com outros
+                visitantes e podem ser alterados durante a avaliação.
+              </p>
+
+              <button
+                className={styles.botaoDemo}
+                type="button"
+                onClick={usarCredenciaisDemo}
+              >
+                Preencher credenciais
+              </button>
+            </div>
+          </Modal>
+        )}
       </main>
     </>
   );
