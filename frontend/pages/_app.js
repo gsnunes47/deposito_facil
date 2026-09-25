@@ -6,7 +6,11 @@ import { obterRotaLogin, verificarSessao } from '../services/authService';
 import '../styles/login.css';
 
 function rotaPublica(pathname) {
-  return pathname.startsWith('/login') || pathname === '/admin';
+  return (
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname === '/admin'
+  );
 }
 
 export default function App({ Component, pageProps }) {

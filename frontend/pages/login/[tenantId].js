@@ -42,7 +42,7 @@ export default function Login() {
     try {
       setEnviando(true);
       await autenticar(tenantId, { login, password });
-      router.push('/');
+      router.push('/app');
     } catch (error) {
       setMensagem(error.message);
     } finally {

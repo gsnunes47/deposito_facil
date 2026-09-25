@@ -42,7 +42,7 @@ const Navbar = () => {
         id="menu-principal"
         className={`${styles.menu} ${menuAberto ? styles.menuAberto : ''}`}
       >
-        <li><Link href="/" onClick={fecharMenu}>Início</Link></li>
+        <li><Link href="/app" onClick={fecharMenu}>Início</Link></li>
         <li><Link href="/entrada" onClick={fecharMenu}>Entrada</Link></li>
         <li><Link href="/venda" onClick={fecharMenu}>Saída</Link></li>
 
