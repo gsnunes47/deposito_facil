@@ -141,7 +141,6 @@ export default function LandingPage() {
             <nav className={styles.navegacao} aria-label="Navegação da apresentação">
               <a href="#como-funciona">Como funciona</a>
               <a href="#recursos">Recursos</a>
-              <Link href="/login">Entrar</Link>
             </nav>
             <Link className={styles.botaoCabecalho} href="/login/2">
               Ver demonstração
