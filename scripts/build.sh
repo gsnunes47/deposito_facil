@@ -44,5 +44,38 @@ echo "🚀 Reiniciando PM2..."
 pm2 restart deposito-facil-api
 pm2 restart deposito-facil-frontend
 
+sleep 3
+
+echo "🔎 Validando processos..."
+
+API_STATUS="$(pm2 jlist | node -e "
+let d='';
+process.stdin.on('data', c => d += c);
+process.stdin.on('end', () => {
+  const apps = JSON.parse(d);
+  const app = apps.find(x => x.name === 'deposito-facil-api');
+  console.log(app?.pm2_env?.status || 'missing');
+});
+")"
+
+FRONT_STATUS="$(pm2 jlist | node -e "
+let d='';
+process.stdin.on('data', c => d += c);
+process.stdin.on('end', () => {
+  const apps = JSON.parse(d);
+  const app = apps.find(x => x.name === 'deposito-facil-frontend');
+  console.log(app?.pm2_env?.status || 'missing');
+});
+")"
+
+echo "API: $API_STATUS"
+echo "Frontend: $FRONT_STATUS"
+
+if [ "$API_STATUS" != "online" ] || [ "$FRONT_STATUS" != "online" ]; then
+  echo "❌ Deploy falhou: processo PM2 fora do ar"
+  pm2 status
+  exit 1
+fi
+
 echo "✅ Deploy concluído!"
 pm2 status
