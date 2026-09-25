@@ -8,6 +8,6 @@ src/generated/
 *.db
 .next
 build
-scripts
 ai-docs
 AGENTS.md
+/backend/scripts
