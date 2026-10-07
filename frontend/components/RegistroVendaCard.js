@@ -80,7 +80,8 @@ export default function RegistroVendaCard({
       <div className={styles.itens}>
         {itens.map((item, index) => (
           <p key={`${item.id}-${index}`}>
-            {item.quantidade} {produtosPorId[item.id]?.nome ?? `Produto #${item.id}`}{' '}
+            {item.quantidade}{' '}
+            {produtosPorId[item.id]?.nome ?? item.nome ?? `Produto #${item.id}`}{' '}
             — {formatarCentavos(item.valor_unitario)}
           </p>
         ))}

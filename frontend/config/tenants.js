@@ -11,7 +11,9 @@ const visualMeaPostePadrao = {
 };
 
 const visualMax = {
-  
+  backgroundSize: 'contain',
+  backgroundPosition: 'center',
+  backgroundColor: '#C3C3C3',
 };
 
 const VISUAIS_TENANT = {
