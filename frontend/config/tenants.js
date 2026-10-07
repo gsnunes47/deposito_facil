@@ -4,16 +4,20 @@ const visualBananasFerreira = {
   backgroundPosition: 'right 24px bottom 24px',
 };
 
-const visualMeaPostePadrao = {                            
+const visualMeaPostePadrao = {
   backgroundColor: '#FFFFFF',
   backgroundSize: 'clamp(220px, 25vw, 420px) auto',
   backgroundPosition: 'right 24px bottom 24px',
-}
+};
+
+const visualMax = {
+  
+};
 
 const VISUAIS_TENANT = {
   // 2: {
-    // ...visualMeaPostePadrao,
-    // background: '/tenants/2/background.png',
+  // ...visualMeaPostePadrao,
+  // background: '/tenants/2/background.png',
   // },
   5: {
     ...visualBananasFerreira,
@@ -22,6 +26,10 @@ const VISUAIS_TENANT = {
   6: {
     ...visualMeaPostePadrao,
     background: '/tenants/6/background.png',
+  },
+  8: {
+    ...visualMax,
+    background: '/tenants/8/background.png',
   },
 };
 
