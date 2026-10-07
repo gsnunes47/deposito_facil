@@ -16,7 +16,7 @@ const visualMax = {
   backgroundColor: '#C3C3C3',
 };
 
-const VISUAIS_TENANT = {
+const CONFIGURACOES_TENANT = {
   // 2: {
   // ...visualMeaPostePadrao,
   // background: '/tenants/2/background.png',
@@ -32,9 +32,10 @@ const VISUAIS_TENANT = {
   8: {
     ...visualMax,
     background: '/tenants/8/background.png',
+    somInicializacao: '/tenants/8/start.mp4',
   },
 };
 
-export function obterVisualTenant(tenantId) {
-  return VISUAIS_TENANT[Number(tenantId)] ?? null;
+export function obterConfiguracaoTenant(tenantId) {
+  return CONFIGURACOES_TENANT[Number(tenantId)] ?? null;
 }

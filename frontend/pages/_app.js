@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { obterVisualTenant } from '../config/tenants';
+import { obterConfiguracaoTenant } from '../config/tenants';
 import { AuthProvider } from '../contexts/AuthContext';
 import { obterRotaLogin, verificarSessao } from '../services/authService';
 import '../styles/login.css';
@@ -18,7 +18,7 @@ export default function App({ Component, pageProps }) {
   const publica = rotaPublica(router.pathname);
   const [autorizado, setAutorizado] = useState(publica);
   const [usuario, setUsuario] = useState(null);
-  const visualTenant = obterVisualTenant(usuario?.tenantId);
+  const visualTenant = obterConfiguracaoTenant(usuario?.tenantId);
 
   useEffect(() => {
     if (!visualTenant) return undefined;

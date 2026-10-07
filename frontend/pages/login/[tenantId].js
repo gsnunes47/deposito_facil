@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Modal from '../../components/Modal';
+import { obterConfiguracaoTenant } from '../../config/tenants';
 import { autenticar } from '../../services/authService';
 import styles from '../../styles/Login.module.css';
 
@@ -42,6 +43,17 @@ export default function Login() {
     try {
       setEnviando(true);
       await autenticar(tenantId, { login, password });
+
+      const somInicializacao =
+        obterConfiguracaoTenant(tenantId)?.somInicializacao;
+
+      if (somInicializacao) {
+        const audio = new Audio(somInicializacao);
+        audio.play().catch(() => {
+          // O navegador pode bloquear reprodução automática.
+        });
+      }
+
       router.push('/app');
     } catch (error) {
       setMensagem(error.message);
