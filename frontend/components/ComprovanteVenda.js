@@ -34,22 +34,28 @@ function ConteudoComprovante({ comprovante }) {
       <div className={styles.separador} />
 
       <div className={styles.itens}>
-        <div className={`${styles.linhaItem} ${styles.titulos}`}>
-          <span>Produto</span>
-          <span>Qtd.</span>
-          <span>Preço</span>
-          <span>Total</span>
-        </div>
+        <p className={styles.titulos}>Produtos</p>
 
         {venda.itens.map((item, index) => (
           <div
             className={styles.linhaItem}
             key={`${item.produtoId}-${index}`}
           >
-            <span>{item.nome}</span>
-            <span>{item.quantidade}</span>
-            <span>{formatarCentavos(item.valorUnitario)}</span>
-            <span>{formatarCentavos(item.subtotal)}</span>
+            <strong className={styles.nomeProduto}>{item.nome}</strong>
+            <div className={styles.detalhesItem}>
+              <span className={styles.dadoItem}>
+                <small>Qtd.</small>
+                {item.quantidade}
+              </span>
+              <span className={styles.dadoItem}>
+                <small>Preço unit.</small>
+                {formatarCentavos(item.valorUnitario)}
+              </span>
+              <span className={styles.dadoItem}>
+                <small>Subtotal</small>
+                {formatarCentavos(item.subtotal)}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -86,7 +92,6 @@ export default function ComprovanteVenda({
     <section
       id={elementoId}
       className={styles.comprovante}
-      style={{ width: `${configuracao.larguraPapelMm - 6}mm` }}
       aria-hidden="true"
     >
       {possuiCabecalho && (

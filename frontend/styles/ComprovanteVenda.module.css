@@ -2,6 +2,7 @@
   position: fixed;
   top: 0;
   left: -10000px;
+  width: 100%;
   padding: 3mm;
   color: #000000;
   background: #ffffff;
@@ -22,6 +23,7 @@
   gap: 2px;
   margin-bottom: 12px;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .cabecalho strong {
@@ -35,6 +37,7 @@
 
 .dadosVenda p {
   margin: 2px 0;
+  overflow-wrap: anywhere;
 }
 
 .separador {
@@ -44,34 +47,68 @@
 
 .itens {
   display: grid;
-  gap: 6px;
+  gap: 3mm;
 }
 
 .linhaItem {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 10mm 17mm 17mm;
-  gap: 4px;
-  align-items: start;
+  min-width: 0;
+  gap: 1mm;
 }
 
-.linhaItem span:not(:first-child) {
+.nomeProduto {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.detalhesItem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5mm 3mm;
+  min-width: 0;
+}
+
+.dadoItem {
+  display: grid;
+  flex: 1 1 18mm;
+  min-width: 0;
   text-align: right;
-}
-
-.linhaItem span:first-child {
   overflow-wrap: anywhere;
 }
 
+.dadoItem:first-child {
+  text-align: left;
+}
+
+.dadoItem small {
+  font-size: 0.8em;
+  font-weight: 400;
+}
+
 .titulos {
+  margin: 0;
   font-weight: 700;
 }
 
 .total {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
   margin: 0;
   font-size: 14px;
+}
+
+.total span {
+  white-space: nowrap;
+}
+
+.total strong {
+  min-width: 0;
+  margin-left: auto;
+  text-align: right;
+  overflow-wrap: anywhere;
 }
 
 .separadorGeral {
@@ -88,6 +125,7 @@
 .rodape {
   margin: 14px 0 0;
   text-align: center;
+  overflow-wrap: anywhere;
 }
 
 @media print {

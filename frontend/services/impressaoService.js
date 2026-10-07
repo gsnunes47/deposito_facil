@@ -30,7 +30,7 @@ export function imprimirArea({
   estilos.textContent = `
     @page {
       size: ${larguraPapelMm ? 'auto' : `A4 ${orientacao}`};
-      margin: ${larguraPapelMm ? 0 : '14mm'};
+      margin: ${larguraPapelMm ? `${margemMm}mm` : '14mm'};
     }
 
     @media print {
@@ -61,9 +61,18 @@ export function imprimirArea({
       body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} {
         position: ${larguraPapelMm ? 'static' : 'absolute'} !important;
         inset: ${larguraPapelMm ? 'auto' : '0 auto auto 0'} !important;
-        width: ${larguraPapelMm ? `${larguraPapelMm}mm` : '100%'} !important;
-        padding: ${larguraPapelMm ? `${margemMm}mm` : '0'} !important;
+        width: 100% !important;
+        max-width: ${larguraPapelMm ? `${larguraPapelMm - margemMm * 2}mm` : 'none'} !important;
+        margin: ${larguraPapelMm ? '0 auto' : '0'} !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
+      }
+
+      body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} *,
+      body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} *::before,
+      body.${CLASSE_IMPRESSAO} .${CLASSE_AREA} *::after {
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       body.${CLASSE_IMPRESSAO} [data-nao-imprimir] {
