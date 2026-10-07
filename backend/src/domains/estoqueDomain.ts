@@ -20,7 +20,11 @@ function formatarItens(
 
     return {
       produto_id: produtoId,
-      produto: produtosPorId.get(produtoId)?.nome ?? `Produto #${produtoId}`,
+      produto:
+        produtosPorId.get(produtoId)?.nome ??
+        (typeof dados.nome === 'string'
+          ? dados.nome
+          : `Produto #${produtoId}`),
       quantidade,
       valor_unitario: valorUnitario,
       total_item: quantidade * valorUnitario,

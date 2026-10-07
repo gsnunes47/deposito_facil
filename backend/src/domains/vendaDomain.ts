@@ -162,7 +162,9 @@ class VendaDomain {
         cliente: venda.cliente.nome ?? 'Cliente não informado',
         itens: itensVenda.map((item: any) => ({
           produtoId: Number(item.id),
-          nome: nomesPorId.get(Number(item.id)) ?? `Produto #${item.id}`,
+          nome:
+            nomesPorId.get(Number(item.id)) ??
+            (typeof item.nome === 'string' ? item.nome : `Produto #${item.id}`),
           quantidade: Number(item.quantidade),
           valorUnitario: Number(item.valor_unitario),
           subtotal: Number(item.quantidade) * Number(item.valor_unitario),
