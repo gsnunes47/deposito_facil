@@ -1,10 +1,12 @@
 const CLASSE_IMPRESSAO = 'impressao-documento-ativa';
 const CLASSE_AREA = 'area-impressao-ativa';
+const CLASSE_FLUXO_CONTINUO = 'impressao-fluxo-continuo';
 const STYLE_ID = 'estilos-impressao-documento';
 
 function removerPreparacao(elemento, tituloOriginal) {
   document.body.classList.remove(CLASSE_IMPRESSAO);
   elemento.classList.remove(CLASSE_AREA);
+  elemento.classList.remove(CLASSE_FLUXO_CONTINUO);
   document.getElementById(STYLE_ID)?.remove();
   document.title = tituloOriginal;
 }
@@ -15,6 +17,7 @@ export function imprimirArea({
   orientacao = 'portrait',
   larguraPapelMm,
   margemMm = 3,
+  fluxoContinuo = false,
 }) {
   if (typeof window === 'undefined') return;
 
@@ -78,12 +81,21 @@ export function imprimirArea({
       body.${CLASSE_IMPRESSAO} [data-nao-imprimir] {
         display: none !important;
       }
+
+      body.${CLASSE_IMPRESSAO} .${CLASSE_FLUXO_CONTINUO},
+      body.${CLASSE_IMPRESSAO} .${CLASSE_FLUXO_CONTINUO} > * {
+        break-before: auto !important;
+        break-after: auto !important;
+        page-break-before: auto !important;
+        page-break-after: auto !important;
+      }
     }
   `;
 
   document.head.appendChild(estilos);
   document.body.classList.add(CLASSE_IMPRESSAO);
   elemento.classList.add(CLASSE_AREA);
+  elemento.classList.toggle(CLASSE_FLUXO_CONTINUO, fluxoContinuo);
   document.title = titulo;
 
   try {
@@ -104,6 +116,7 @@ export function imprimirComprovantesVenda(comprovantes, elementoId) {
         : `${comprovantes.length} vendas`,
     larguraPapelMm: comprovantes[0].configuracao.larguraPapelMm,
     margemMm: 3,
+    fluxoContinuo: comprovantes.length > 1,
   });
 }
 
