@@ -44,6 +44,9 @@ class ProdutoDomain {
       where: {
         tenant_id: tenantId,
       },
+      orderBy: {
+        nome: "asc"
+      },
       select: {
         id: true,
         nome: true,
