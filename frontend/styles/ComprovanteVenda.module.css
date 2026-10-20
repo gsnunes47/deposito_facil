@@ -128,8 +128,24 @@
   overflow-wrap: anywhere;
 }
 
+.espacoAnotacoes {
+  height: 20mm;
+}
+
 @media print {
   .comprovante {
     font-size: 12px;
+    font-weight: 800;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .comprovante small {
+    font-weight: 700;
+  }
+
+  .separador,
+  .recibo + .recibo {
+    border-top-width: 2px;
   }
 }

@@ -128,6 +128,8 @@ export default function ComprovanteVenda({
       {possuiTexto(configuracao.mensagemRodape) && (
         <p className={styles.rodape}>{configuracao.mensagemRodape.trim()}</p>
       )}
+
+      <div className={styles.espacoAnotacoes} aria-hidden="true" />
     </section>
   );
 }
