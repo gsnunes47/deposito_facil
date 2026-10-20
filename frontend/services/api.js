@@ -1,4 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_APIURL;
+export const SESSION_RENEWED_EVENT = 'session-renewed';
 
 export async function apiRequest(path, options = {}) {
   const { redirectOnUnauthorized = true, ...fetchOptions } = options;
@@ -12,6 +13,19 @@ export async function apiRequest(path, options = {}) {
   });
 
   const data = await response.json().catch(() => null);
+
+  const sessionExpiresAt = Number(
+    response.headers.get('X-Session-Expires-At'),
+  );
+
+  if (
+    Number.isFinite(sessionExpiresAt) &&
+    typeof window !== 'undefined'
+  ) {
+    window.dispatchEvent(
+      new CustomEvent(SESSION_RENEWED_EVENT, { detail: sessionExpiresAt }),
+    );
+  }
 
   if (!response.ok) {
     if (

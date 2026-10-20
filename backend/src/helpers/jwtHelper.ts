@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { SESSION_DURATION_MS } from '../config/auth.js';
 
 const SECRET = process.env.JWT_SECRET as string;
 
@@ -7,7 +8,7 @@ export function generateToken(payload: {
   tenantId: number;
   accessLevel: string;
 }) {
-  return jwt.sign(payload, SECRET, { expiresIn: '8h' });
+  return jwt.sign(payload, SECRET, { expiresIn: SESSION_DURATION_MS / 1000 });
 }
 
 export function verifyToken(token: string) {

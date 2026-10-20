@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { timingSafeEqual } from 'node:crypto';
-import { generateToken } from '../helpers/jwtHelper.js';
+import { renewSession } from '../helpers/authSession.js';
 
 function valoresIguais(recebido: unknown, esperado: string) {
   const recebidoBuffer = Buffer.from(String(recebido ?? ''));
@@ -29,19 +29,13 @@ export async function login(request: Request, response: Response) {
     return response.status(400).json({ message: 'Login ou senha inválidos' });
   }
 
-  const token = generateToken({
+  renewSession(response, {
     userId: 0,
     tenantId: 0,
     accessLevel: 'platform_admin',
   });
 
   return response
-    .cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 2 * 60 * 60 * 1000,
-    })
     .status(200)
     .json({ message: 'Login realizado com sucesso' });
 }

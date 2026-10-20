@@ -29,6 +29,7 @@ app.use(
   cors({
     origin: ['http://localhost:3000', 'https://depositofacil.app.br'],
     credentials: true,
+    exposedHeaders: ['X-Session-Expires-At'],
   }),
 );
 

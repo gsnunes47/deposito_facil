@@ -1,4 +1,5 @@
 import * as jwtHelper from '../../helpers/jwtHelper.js';
+import { renewSession } from '../../helpers/authSession.js';
 import { type NextFunction, type Request, type Response } from 'express';
 
 class authMiddleware {
@@ -16,6 +17,11 @@ class authMiddleware {
         });
       } else {
         request.user = decoded;
+        renewSession(response, {
+          userId: decoded.userId,
+          tenantId: decoded.tenantId,
+          accessLevel: decoded.accessLevel,
+        });
         next();
       }
     }

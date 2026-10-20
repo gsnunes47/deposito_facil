@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { obterConfiguracaoTenant } from '../config/tenants';
 import { AuthProvider } from '../contexts/AuthContext';
+import { SESSION_RENEWED_EVENT } from '../services/api';
 import { obterRotaLogin, verificarSessao } from '../services/authService';
 import '../styles/login.css';
 
@@ -41,6 +42,33 @@ export default function App({ Component, pageProps }) {
     visualTenant?.backgroundSize,
     visualTenant?.backgroundPosition,
   ]);
+
+  useEffect(() => {
+    if (publica) return undefined;
+
+    let timeoutId;
+
+    function agendarExpiracao(event) {
+      window.clearTimeout(timeoutId);
+
+      const tempoRestante = event.detail - Date.now();
+      if (tempoRestante <= 0) {
+        router.replace(obterRotaLogin());
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => {
+        router.replace(obterRotaLogin());
+      }, tempoRestante);
+    }
+
+    window.addEventListener(SESSION_RENEWED_EVENT, agendarExpiracao);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      window.removeEventListener(SESSION_RENEWED_EVENT, agendarExpiracao);
+    };
+  }, [publica, router]);
 
   useEffect(() => {
     let ativo = true;
