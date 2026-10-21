@@ -1,6 +1,13 @@
 import type { Request, Response } from 'express';
 import vendaDomain from '../domains/vendaDomain.js';
 
+const FORMAS_PAGAMENTO = [
+  'DINHEIRO',
+  'PIX',
+  'CARTAO_CREDITO',
+  'CARTAO_DEBITO',
+] as const;
+
 export async function createVenda(request: Request, response: Response) {
   const possuiClienteId =
     request.body.cliente_id !== undefined && request.body.cliente_id !== null;
@@ -81,6 +88,53 @@ export async function createVenda(request: Request, response: Response) {
     }
   }
 
+  let pagamentoInicial:
+    | {
+        forma_pagamento: (typeof FORMAS_PAGAMENTO)[number];
+        valor?: number;
+        quitar?: boolean;
+      }
+    | undefined;
+
+  if (request.body.pagamento != null) {
+    const pagamento = request.body.pagamento;
+
+    if (typeof pagamento !== 'object' || Array.isArray(pagamento)) {
+      return response.status(400).send({ error: 'Pagamento inválido' });
+    }
+
+    if (
+      !FORMAS_PAGAMENTO.includes(
+        pagamento.forma_pagamento as (typeof FORMAS_PAGAMENTO)[number],
+      )
+    ) {
+      return response.status(400).send({
+        error: 'Forma de pagamento inválida',
+      });
+    }
+
+    if (pagamento.quitar === true) {
+      pagamentoInicial = {
+        forma_pagamento: pagamento.forma_pagamento,
+        quitar: true,
+      };
+    } else {
+      const valor = Number(pagamento.valor);
+
+      if (!Number.isInteger(valor) || valor <= 0) {
+        return response.status(400).send({
+          error:
+            'Valor do pagamento deve ser um número em centavos maior que zero',
+        });
+      }
+
+      pagamentoInicial = {
+        forma_pagamento: pagamento.forma_pagamento,
+        valor,
+      };
+    }
+  }
+
   const vendaNova = await vendaDomain.createVenda(
     possuiClienteId
       ? { cliente_id: Number(request.body.cliente_id) }
@@ -88,6 +142,7 @@ export async function createVenda(request: Request, response: Response) {
     produtosData,
     request.user.tenantId,
     dataVenda,
+    pagamentoInicial,
   );
 
   if (!vendaNova.venda_id) {

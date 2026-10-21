@@ -50,6 +50,7 @@ export default function Venda() {
     entidade_nome,
     produtos: itens,
     data,
+    pagamento,
   }) {
     const resultado = await criarVenda({
       ...(entidade_id
@@ -57,6 +58,7 @@ export default function Venda() {
         : { cliente_nome: entidade_nome }),
       produtos: itens,
       ...(data && { data }),
+      ...(pagamento && { pagamento }),
     });
 
     if (resultado.comprovante) {
@@ -81,6 +83,7 @@ export default function Venda() {
       selecaoIncremental
       controlesQuantidade
       preencherPrecoPadrao
+      permitirPagamento
     >
       <ComprovanteVenda comprovante={comprovante} elementoId={ID_COMPROVANTE} />
     </FormularioMovimentacao>

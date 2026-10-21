@@ -25,6 +25,7 @@ export default function FormularioMovimentacao({
   selecaoIncremental = false,
   controlesQuantidade = false,
   preencherPrecoPadrao = false,
+  permitirPagamento = false,
   children,
 }) {
   const [entidadeId, setEntidadeId] = useState('');
@@ -34,6 +35,10 @@ export default function FormularioMovimentacao({
   const [itemParaAdicionar, setItemParaAdicionar] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [mensagem, setMensagem] = useState(null);
+  const [registrarPagamento, setRegistrarPagamento] = useState(false);
+  const [tipoPagamento, setTipoPagamento] = useState('TOTAL');
+  const [formaPagamento, setFormaPagamento] = useState('');
+  const [valorPagamento, setValorPagamento] = useState('');
 
   const produtosExibidos = selecaoIncremental
     ? itensSelecionados
@@ -73,15 +78,16 @@ export default function FormularioMovimentacao({
     setItensSelecionados((atuais) =>
       atuais.includes(produtoId) ? atuais : [...atuais, produtoId],
     );
-    if (preencherPrecoPadrao && produto?.preco_padrao != null) {
-      setValores((atuais) => ({
-        ...atuais,
-        [produtoId]: {
-          ...atuais[produtoId],
-          preco: (Number(produto.preco_padrao) / 100).toFixed(2),
-        },
-      }));
-    }
+    setValores((atuais) => ({
+      ...atuais,
+      [produtoId]: {
+        ...atuais[produtoId],
+        quantidade: atuais[produtoId]?.quantidade || '1',
+        ...(preencherPrecoPadrao && produto?.preco_padrao != null
+          ? { preco: (Number(produto.preco_padrao) / 100).toFixed(2) }
+          : {}),
+      },
+    }));
     setItemParaAdicionar('');
   }
 
@@ -134,6 +140,45 @@ export default function FormularioMovimentacao({
     return produtosSelecionados;
   }
 
+  function prepararPagamento(produtosSelecionados) {
+    if (!permitirPagamento || !registrarPagamento) return undefined;
+
+    if (!formaPagamento) {
+      throw new Error('Selecione a forma de pagamento.');
+    }
+
+    if (tipoPagamento === 'TOTAL') {
+      return { forma_pagamento: formaPagamento, quitar: true };
+    }
+
+    const totalCentavos = produtosSelecionados.reduce(
+      (soma, item) => soma + item.quantidade * item.valor_unitario,
+      0,
+    );
+    const valorCentavos = Math.round(Number(valorPagamento) * 100);
+
+    if (!Number.isInteger(valorCentavos) || valorCentavos <= 0) {
+      throw new Error('Informe um valor de pagamento maior que zero.');
+    }
+
+    if (valorCentavos >= totalCentavos) {
+      throw new Error(
+        'Para pagar o valor completo, selecione Pagamento total.',
+      );
+    }
+
+    return {
+      forma_pagamento: formaPagamento,
+      valor: valorCentavos,
+    };
+  }
+
+  function preencherMetadePagamento() {
+    const totalCentavos = Math.round(total * 100);
+    const metade = Math.floor(totalCentavos / 2);
+    setValorPagamento((metade / 100).toFixed(2));
+  }
+
   async function enviarFormulario(event) {
     event.preventDefault();
     setMensagem(null);
@@ -144,6 +189,7 @@ export default function FormularioMovimentacao({
       }
 
       const produtosSelecionados = prepararProdutos();
+      const pagamento = prepararPagamento(produtosSelecionados);
       setEnviando(true);
 
       await onSubmit({
@@ -154,6 +200,7 @@ export default function FormularioMovimentacao({
           : { entidade_id: Number(entidadeId) }),
         produtos: produtosSelecionados,
         ...(data && { data }),
+        ...(pagamento && { pagamento }),
       });
 
       setEntidadeId('');
@@ -161,6 +208,10 @@ export default function FormularioMovimentacao({
       setValores({});
       setItensSelecionados([]);
       setItemParaAdicionar('');
+      setRegistrarPagamento(false);
+      setTipoPagamento('TOTAL');
+      setFormaPagamento('');
+      setValorPagamento('');
       setMensagem({ tipo: 'sucesso', texto: mensagemSucesso });
     } catch (error) {
       setMensagem({ tipo: 'erro', texto: error.message });
@@ -369,6 +420,92 @@ export default function FormularioMovimentacao({
               <strong>{formatadorMoeda.format(total)}</strong>
             </div>
           </div>
+
+          {permitirPagamento && (
+            <section className={styles.pagamentoInicial}>
+              <label className={styles.opcaoPagamento}>
+                <input
+                  type="checkbox"
+                  checked={registrarPagamento}
+                  onChange={(event) =>
+                    setRegistrarPagamento(event.target.checked)
+                  }
+                />
+                Registrar pagamento agora
+              </label>
+
+              {registrarPagamento && (
+                <div className={styles.camposPagamento}>
+                  <div className={styles.campo}>
+                    <label htmlFor="tipo-pagamento-inicial">Pagamento</label>
+                    <select
+                      id="tipo-pagamento-inicial"
+                      value={tipoPagamento}
+                      onChange={(event) => setTipoPagamento(event.target.value)}
+                    >
+                      <option value="TOTAL">Total — quitar a venda</option>
+                      <option value="PARCIAL">
+                        Parcial — manter saldo aberto
+                      </option>
+                    </select>
+                  </div>
+
+                  <div className={styles.campo}>
+                    <label htmlFor="forma-pagamento-inicial">
+                      Forma de pagamento
+                    </label>
+                    <select
+                      id="forma-pagamento-inicial"
+                      value={formaPagamento}
+                      onChange={(event) =>
+                        setFormaPagamento(event.target.value)
+                      }
+                    >
+                      <option value="">Selecione</option>
+                      <option value="DINHEIRO">Dinheiro</option>
+                      <option value="PIX">PIX</option>
+                      <option value="CARTAO_CREDITO">Cartão de crédito</option>
+                      <option value="CARTAO_DEBITO">Cartão de débito</option>
+                    </select>
+                  </div>
+
+                  {tipoPagamento === 'PARCIAL' && (
+                    <div className={styles.campo}>
+                      <label htmlFor="valor-pagamento-inicial">
+                        Valor recebido
+                      </label>
+                      <div className={styles.valorPagamento}>
+                        <input
+                          id="valor-pagamento-inicial"
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={valorPagamento}
+                          onChange={(event) =>
+                            setValorPagamento(event.target.value)
+                          }
+                          placeholder="0,00"
+                        />
+                        <button
+                          type="button"
+                          onClick={preencherMetadePagamento}
+                          disabled={total <= 0.01}
+                        >
+                          Usar metade
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <p className={styles.ajudaPagamento}>
+                    {tipoPagamento === 'TOTAL'
+                      ? 'A venda será criada como paga.'
+                      : 'O pagamento será registrado e o restante continuará em aberto.'}
+                  </p>
+                </div>
+              )}
+            </section>
+          )}
 
           <button
             className={styles.botaoConfirmar}

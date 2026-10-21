@@ -1,7 +1,14 @@
 import prisma from '../repositories/db.js';
 import { obterConfiguracaoComprovante } from '../config/comprovantes.js';
+import type { FormaPagamento } from '@prisma/client';
 
 type ClienteVenda = number | { cliente_id?: number; cliente_nome?: string };
+
+interface PagamentoInicial {
+  forma_pagamento: FormaPagamento;
+  valor?: number;
+  quitar?: boolean;
+}
 
 class VendaInvalidaError extends Error {
   constructor(message: string) {
@@ -16,6 +23,7 @@ class VendaDomain {
     produtos: any,
     tenant_id: number,
     data?: Date,
+    pagamentoInicial?: PagamentoInicial,
   ) {
     try {
       const venda = await prisma.$transaction(async (transaction) => {
@@ -81,15 +89,54 @@ class VendaDomain {
           }
         }
 
-        return transaction.venda.create({
+        const valorPagamento = pagamentoInicial
+          ? pagamentoInicial.quitar
+            ? total
+            : pagamentoInicial.valor
+          : undefined;
+
+        if (pagamentoInicial && valorPagamento === undefined) {
+          throw new VendaInvalidaError('Informe o valor do pagamento');
+        }
+
+        if (
+          valorPagamento !== undefined &&
+          (!Number.isInteger(valorPagamento) ||
+            valorPagamento <= 0 ||
+            valorPagamento > total)
+        ) {
+          throw new VendaInvalidaError(
+            'O pagamento deve ser maior que zero e igual ou menor que o total da venda',
+          );
+        }
+
+        const vendaQuitada = valorPagamento === total;
+        const venda = await transaction.venda.create({
           data: {
             cliente_id: clienteId,
             tenant_id,
             produtos: itensVenda,
             total,
             ...(data && { data }),
+            ...(vendaQuitada && {
+              pago: true,
+              data_quitacao: new Date(),
+            }),
           },
         });
+
+        if (pagamentoInicial && valorPagamento !== undefined) {
+          await transaction.pagamento.create({
+            data: {
+              venda_id: venda.id,
+              tenant_id,
+              forma_pagamento: pagamentoInicial.forma_pagamento,
+              valor: valorPagamento,
+            },
+          });
+        }
+
+        return venda;
       });
 
       return {

@@ -231,6 +231,74 @@ describe('Venda Domain', () => {
     await prisma.produto.delete({ where: { id: servicoId } });
   });
 
+  it('deve criar a venda quitada com pagamento total', async () => {
+    const vendaNova = await vendaDomain.createVenda(
+      cliente.cliente_id,
+      [{ id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 }],
+      1,
+      undefined,
+      { forma_pagamento: 'PIX', quitar: true },
+    );
+    vendaId = vendaNova.venda_id as number;
+
+    const venda = await prisma.venda.findFirst({
+      where: { id: vendaId, tenant_id: 1 },
+      include: { pagamentos: true },
+    });
+
+    expect(vendaNova.code).toBe(200);
+    expect(venda?.pago).toBe(true);
+    expect(venda?.pagamentos).toHaveLength(1);
+    expect(venda?.pagamentos[0]?.valor).toBe(1000);
+    expect(venda?.pagamentos[0]?.forma_pagamento).toBe('PIX');
+  });
+
+  it('deve manter saldo aberto com pagamento parcial', async () => {
+    const vendaNova = await vendaDomain.createVenda(
+      cliente.cliente_id,
+      [{ id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 }],
+      1,
+      undefined,
+      { forma_pagamento: 'DINHEIRO', valor: 500 },
+    );
+    vendaId = vendaNova.venda_id as number;
+
+    const venda = await prisma.venda.findFirst({
+      where: { id: vendaId, tenant_id: 1 },
+      include: { pagamentos: true },
+    });
+
+    expect(vendaNova.code).toBe(200);
+    expect(venda?.pago).toBe(false);
+    expect(venda?.pagamentos[0]?.valor).toBe(500);
+  });
+
+  it('deve desfazer a venda quando o pagamento inicial exceder o total', async () => {
+    const nome = `Cliente pagamento rollback ${Date.now()}`;
+    const estoqueAntes = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+    const vendaNova = await vendaDomain.createVenda(
+      { cliente_nome: nome },
+      [{ id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 }],
+      1,
+      undefined,
+      { forma_pagamento: 'CARTAO_DEBITO', valor: 1500 },
+    );
+    const estoqueDepois = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+    expect(vendaNova.code).toBe(400);
+    expect(
+      await prisma.cliente.findFirst({ where: { nome, tenant_id: 1 } }),
+    ).toBeNull();
+    expect(estoqueDepois?.quantidade).toBe(estoqueAntes?.quantidade);
+  });
+
   // it('deve fechar uma venda', async () => {
 
   //     const vendaNovo = await vendaDomain.createVenda(

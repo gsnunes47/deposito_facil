@@ -169,6 +169,73 @@
   font-size: 1.25rem;
 }
 
+.pagamentoInicial {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.opcaoPagamento {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #1f2937;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.formulario .opcaoPagamento input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #15803d;
+}
+
+.camposPagamento {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.valorPagamento {
+  display: flex;
+  gap: 8px;
+}
+
+.valorPagamento button {
+  flex: 0 0 auto;
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.valorPagamento button:hover {
+  background: #f1f5f9;
+}
+
+.valorPagamento button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ajudaPagamento {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
 .botaoConfirmar {
   width: 100%;
   margin-top: 20px;
@@ -227,12 +294,25 @@
   }
 
   .produto {
+    position: relative;
     grid-template-columns: 1fr;
     gap: 8px;
   }
 
   .camposProduto {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding-top: 4px;
+  }
+
+  .identificacaoProduto {
+    padding-right: 44px;
+  }
+
+  .botaoRemoverItem {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .nomeProduto {
@@ -241,5 +321,17 @@
 
   .dadosMovimentacao {
     grid-template-columns: 1fr;
+  }
+
+  .camposPagamento {
+    grid-template-columns: 1fr;
+  }
+
+  .valorPagamento {
+    flex-direction: column;
+  }
+
+  .valorPagamento button {
+    width: 100%;
   }
 }
