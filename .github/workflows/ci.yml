@@ -35,6 +35,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/deposito_facil_test
+      TENANT_ADMIN_DEFAULT_PASSWORD: ci-test-only-password
 
     steps:
       - name: Checkout repository

@@ -3,8 +3,18 @@ import tipoDespesaDomain from 'src/domains/tipoDespesaDomain';
 import prisma from 'src/repositories/db';
 
 async function main() {
-  await tenantDomain.createTenant('test');
-  await tenantDomain.createTenant('usuario');
+  for (const nome of ['test', 'usuario']) {
+    const existente = await prisma.tenants.findUnique({
+      where: { name: nome },
+      select: { id: true },
+    });
+    if (existente) continue;
+
+    const resultado = await tenantDomain.createTenant(nome);
+    if (resultado.code !== 201) {
+      throw new Error(`Falha ao criar tenant "${nome}": ${resultado.message}`);
+    }
+  }
 
   const tenants = await prisma.tenants.findMany({ select: { id: true } });
   for (const tenant of tenants) {
