@@ -9,14 +9,16 @@ import {
 export default function CadastroProduto() {
   return (
     <CadastroEntidade
-      titulo="Cadastro de Produtos"
-      singular="Produto"
-      plural="Produtos" 
+      titulo="Cadastro de Produtos e Serviços"
+      singular="Item"
+      plural="Produtos e serviços"
       listar={listarProdutos}
       cadastrar={cadastrarProduto}
       atualizar={atualizarProduto}
       excluir={excluirProduto}
       possuiDocumento={false}
+      possuiTipo
+      possuiPrecoPadrao
     />
   );
 }

@@ -2,11 +2,22 @@ import type { Request, Response } from 'express';
 import vendaDomain from '../domains/vendaDomain.js';
 
 export async function createVenda(request: Request, response: Response) {
-  const user = request.user;
+  const possuiClienteId =
+    request.body.cliente_id !== undefined && request.body.cliente_id !== null;
+  const clienteNome =
+    typeof request.body.cliente_nome === 'string'
+      ? request.body.cliente_nome.trim()
+      : '';
 
-  if (!request.body.cliente_id || isNaN(Number(request.body.cliente_id))) {
+  if (possuiClienteId && !Number.isInteger(Number(request.body.cliente_id))) {
     return response.status(400).send({
-      error: 'ID do cliente é obrigatório e deve ser um número',
+      error: 'ID do cliente deve ser um número válido',
+    });
+  }
+
+  if ((possuiClienteId && clienteNome) || (!possuiClienteId && !clienteNome)) {
+    return response.status(400).send({
+      error: 'Selecione um cliente ou informe o nome de um novo cliente',
     });
   }
 
@@ -35,9 +46,11 @@ export async function createVenda(request: Request, response: Response) {
 
     const quantidade = Number(produto.quantidade);
 
-    if (!Number.isFinite(quantidade) || quantidade <= 0) {
+    if (!Number.isInteger(quantidade) || quantidade <= 0) {
       return response.status(400).send({
-        error: 'Quantidade deve ser maior que zero para o produto na posição ' + index,
+        error:
+          'Quantidade deve ser um inteiro maior que zero para o produto na posição ' +
+          index,
       });
     }
 
@@ -45,7 +58,9 @@ export async function createVenda(request: Request, response: Response) {
 
     if (!Number.isFinite(valorUnitario) || valorUnitario <= 0) {
       return response.status(400).send({
-        error: 'Valor unitário deve ser maior que zero para o produto na posição ' + index,
+        error:
+          'Valor unitário deve ser maior que zero para o produto na posição ' +
+          index,
       });
     }
 
@@ -67,7 +82,9 @@ export async function createVenda(request: Request, response: Response) {
   }
 
   const vendaNova = await vendaDomain.createVenda(
-    Number(request.body.cliente_id),
+    possuiClienteId
+      ? { cliente_id: Number(request.body.cliente_id) }
+      : { cliente_nome: clienteNome },
     produtosData,
     request.user.tenantId,
     dataVenda,
@@ -173,14 +190,16 @@ export async function getVendasFechadas(request: Request, response: Response) {
 }
 
 export async function getPagamentos(request: Request, response: Response) {
-
   if (!request.params.id || isNaN(Number(request.params.id))) {
     return response.status(400).send({
       error: 'ID da venda é obrigatório e deve ser um número',
     });
   }
 
-  const vendas = await vendaDomain.getVendaPagamentos(Number(request.params.id), request.user.tenantId);
+  const vendas = await vendaDomain.getVendaPagamentos(
+    Number(request.params.id),
+    request.user.tenantId,
+  );
   response.status(200).send(vendas);
 }
 

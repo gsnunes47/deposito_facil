@@ -8,6 +8,7 @@ let vendaId: number = 0;
 let cliente: any;
 let produto1: any;
 let produto2: any;
+const clientesCriadosNaVenda: number[] = [];
 
 beforeAll(async () => {
   cliente = await clienteDomain.createCliente('Cliente Teste', 1);
@@ -15,6 +16,17 @@ beforeAll(async () => {
   produto1 = await produtoDomain.createProduto('Produto Teste 1', 1);
 
   produto2 = await produtoDomain.createProduto('Produto Teste 2', 1);
+
+  await produtoDomain.updateProduto({
+    id: produto1.produto_id,
+    tenant_id: 1,
+    quantidade: 10,
+  });
+  await produtoDomain.updateProduto({
+    id: produto2.produto_id,
+    tenant_id: 1,
+    quantidade: 10,
+  });
 });
 
 afterEach(async () => {
@@ -23,6 +35,12 @@ afterEach(async () => {
   }
 
   vendaId = 0;
+
+  if (clientesCriadosNaVenda.length > 0) {
+    await prisma.cliente.deleteMany({
+      where: { id: { in: clientesCriadosNaVenda.splice(0) }, tenant_id: 1 },
+    });
+  }
 });
 
 afterAll(async () => {
@@ -78,7 +96,6 @@ describe('Venda Domain', () => {
       1,
     );
 
-
     if (!produto1PreVenda?.quantidade) {
       throw Error;
     }
@@ -112,6 +129,106 @@ describe('Venda Domain', () => {
     }
 
     expect(produto1PosVenda.quantidade).toBe(produto1PreVenda.quantidade - 2); //passou por 2 vendas
+  });
+
+  it('não deve duplicar um cliente existente', async () => {
+    const quantidadeAntes = await prisma.cliente.count({
+      where: { tenant_id: 1 },
+    });
+
+    const vendaNova = await vendaDomain.createVenda(
+      { cliente_id: cliente.cliente_id },
+      [{ id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 }],
+      1,
+    );
+    vendaId = vendaNova.venda_id as number;
+
+    expect(vendaNova.code).toBe(200);
+    expect(await prisma.cliente.count({ where: { tenant_id: 1 } })).toBe(
+      quantidadeAntes,
+    );
+  });
+
+  it('deve criar cliente e venda na mesma operação', async () => {
+    const nome = `Cliente criado na venda ${Date.now()}`;
+    const vendaNova = await vendaDomain.createVenda(
+      { cliente_nome: nome },
+      [{ id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 }],
+      1,
+    );
+    vendaId = vendaNova.venda_id as number;
+
+    const clienteCriado = await prisma.cliente.findFirst({
+      where: { nome, tenant_id: 1 },
+    });
+    if (clienteCriado) clientesCriadosNaVenda.push(clienteCriado.id);
+
+    expect(vendaNova.code).toBe(200);
+    expect(clienteCriado?.documento).toBeNull();
+  });
+
+  it('deve desfazer o cliente novo quando a venda falhar', async () => {
+    const nome = `Cliente rollback ${Date.now()}`;
+    const estoqueAntes = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+    const vendaNova = await vendaDomain.createVenda(
+      { cliente_nome: nome },
+      [
+        { id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 },
+        { id: 999999, quantidade: 1, valor_unitario: 1000 },
+      ],
+      1,
+    );
+    const estoqueDepois = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+    expect(vendaNova.code).toBe(400);
+    expect(
+      await prisma.cliente.findFirst({ where: { nome, tenant_id: 1 } }),
+    ).toBeNull();
+    expect(estoqueDepois?.quantidade).toBe(estoqueAntes?.quantidade);
+  });
+
+  it('deve vender produto e serviço juntos sem movimentar o serviço', async () => {
+    const servico = await produtoDomain.createProduto(
+      `Serviço venda ${Date.now()}`,
+      1,
+      'SERVICO',
+    );
+    const servicoId = servico.produto_id as number;
+    const quantidadeAntes = (await produtoDomain.getProdutoById(servicoId, 1))
+      ?.quantidade;
+    const estoqueProdutoAntes = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+    const vendaNova = await vendaDomain.createVenda(
+      cliente.cliente_id,
+      [
+        { id: produto1.produto_id, quantidade: 1, valor_unitario: 1000 },
+        { id: servicoId, quantidade: 2, valor_unitario: 1500 },
+      ],
+      1,
+    );
+    vendaId = vendaNova.venda_id as number;
+    const quantidadeDepois = (await produtoDomain.getProdutoById(servicoId, 1))
+      ?.quantidade;
+    const estoqueProdutoDepois = await produtoDomain.getProdutoById(
+      produto1.produto_id,
+      1,
+    );
+
+    expect(vendaNova.code).toBe(200);
+    expect(quantidadeDepois).toBe(quantidadeAntes);
+    expect(estoqueProdutoDepois?.quantidade).toBe(
+      Number(estoqueProdutoAntes?.quantidade) - 1,
+    );
+    await prisma.produto.delete({ where: { id: servicoId } });
   });
 
   // it('deve fechar uma venda', async () => {

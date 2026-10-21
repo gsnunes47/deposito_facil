@@ -24,6 +24,35 @@ describe('Produto Domain', () => {
     produtoId = produtoNovo.produto_id as number;
 
     expect(produtoNovo.code).toBe(200);
+
+    const produtoCriado = await produtoDomain.getProdutoById(produtoId, 1);
+    expect(produtoCriado?.tipo).toBe('PRODUTO');
+    expect(produtoCriado?.preco_padrao).toBeNull();
+  });
+
+  it('deve cadastrar preço padrão em centavos', async () => {
+    const produtoNovo = await produtoDomain.createProduto(
+      'Produto com preço',
+      1,
+      'PRODUTO',
+      2590,
+    );
+    produtoId = produtoNovo.produto_id as number;
+
+    const produtoCriado = await produtoDomain.getProdutoById(produtoId, 1);
+    expect(produtoCriado?.preco_padrao).toBe(2590);
+  });
+
+  it('deve criar um serviço sem alterar o padrão dos produtos', async () => {
+    const servicoNovo = await produtoDomain.createProduto(
+      'Serviço Teste',
+      1,
+      'SERVICO',
+    );
+    produtoId = servicoNovo.produto_id as number;
+
+    const servico = await produtoDomain.getProdutoById(produtoId, 1);
+    expect(servico?.tipo).toBe('SERVICO');
   });
 
   it('deve apagar um produto', async () => {

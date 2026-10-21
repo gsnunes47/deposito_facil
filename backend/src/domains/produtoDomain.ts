@@ -1,11 +1,13 @@
 import prisma from '../repositories/db.js';
-import { getNextTenantId } from '../helpers/globalIdHelper.js';
+import type { TipoItem } from '@prisma/client';
 
 interface produtoInterface {
   id: number;
   nome: string;
   quantidade: number;
   tenant_id: number;
+  tipo: TipoItem;
+  preco_padrao: number | null;
 }
 
 interface updateProdutoInterface {
@@ -13,15 +15,24 @@ interface updateProdutoInterface {
   nome?: string;
   quantidade?: number;
   tenant_id: number;
+  tipo?: TipoItem;
+  preco_padrao?: number | null;
 }
 
 class ProdutoDomain {
-  async createProduto(name: string, tenant_id: number) {
+  async createProduto(
+    name: string,
+    tenant_id: number,
+    tipo: TipoItem = 'PRODUTO',
+    preco_padrao: number | null = null,
+  ) {
     try {
       const produto = await prisma.produto.create({
         data: {
           nome: name,
           tenant_id: tenant_id,
+          tipo,
+          preco_padrao,
         },
       });
 
@@ -45,12 +56,14 @@ class ProdutoDomain {
         tenant_id: tenantId,
       },
       orderBy: {
-        nome: "asc"
+        nome: 'asc',
       },
       select: {
         id: true,
         nome: true,
         quantidade: true,
+        tipo: true,
+        preco_padrao: true,
       },
     });
 
@@ -113,8 +126,13 @@ class ProdutoDomain {
         ...(produto.nome !== undefined && {
           nome: produto.nome,
         }),
-        ...(produto.quantidade !== undefined && { // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona. 
+        ...(produto.quantidade !== undefined && {
+          // ... se a condição for verdadeira, adiciona o trecho abaixo, se for falsa não adiciona.
           quantidade: produto.quantidade,
+        }),
+        ...(produto.tipo !== undefined && { tipo: produto.tipo }),
+        ...(produto.preco_padrao !== undefined && {
+          preco_padrao: produto.preco_padrao,
         }),
       },
     });

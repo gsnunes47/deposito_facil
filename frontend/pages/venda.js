@@ -45,9 +45,16 @@ export default function Venda() {
     }
   }, [comprovante]);
 
-  async function registrarVenda({ entidade_id, produtos: itens, data }) {
+  async function registrarVenda({
+    entidade_id,
+    entidade_nome,
+    produtos: itens,
+    data,
+  }) {
     const resultado = await criarVenda({
-      cliente_id: entidade_id,
+      ...(entidade_id
+        ? { cliente_id: entidade_id }
+        : { cliente_nome: entidade_nome }),
       produtos: itens,
       ...(data && { data }),
     });
@@ -70,11 +77,12 @@ export default function Venda() {
       carregando={carregando}
       erroCarregamento={erroCarregamento}
       exibirData
+      permitirNovaEntidade
+      selecaoIncremental
+      controlesQuantidade
+      preencherPrecoPadrao
     >
-      <ComprovanteVenda
-        comprovante={comprovante}
-        elementoId={ID_COMPROVANTE}
-      />
+      <ComprovanteVenda comprovante={comprovante} elementoId={ID_COMPROVANTE} />
     </FormularioMovimentacao>
   );
 }

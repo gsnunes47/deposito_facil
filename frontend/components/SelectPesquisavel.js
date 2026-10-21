@@ -8,6 +8,8 @@ function normalizar(texto) {
     .toLowerCase();
 }
 
+export const PREFIXO_NOVO_ITEM = '__novo__:';
+
 export default function SelectPesquisavel({
   id,
   value,
@@ -17,17 +19,26 @@ export default function SelectPesquisavel({
   searchPlaceholder = 'Digite para pesquisar',
   disabled = false,
   required = false,
+  permitirNovo = false,
+  rotuloNovo = (texto) => `Cadastrar novo: ${texto}`,
+  limparAposSelecionar = false,
 }) {
-  const selecionada = options.find(
-    (option) => String(option.value) === String(value),
-  );
+  const valorNovo =
+    permitirNovo && String(value).startsWith(PREFIXO_NOVO_ITEM)
+      ? String(value).slice(PREFIXO_NOVO_ITEM.length)
+      : null;
+  const selecionada =
+    options.find((option) => String(option.value) === String(value)) ??
+    (valorNovo !== null ? { value, label: valorNovo, novo: true } : undefined);
   const [consulta, setConsulta] = useState(selecionada?.label ?? '');
   const [aberto, setAberto] = useState(false);
   const [indiceAtivo, setIndiceAtivo] = useState(0);
 
   useEffect(() => {
-    setConsulta(selecionada?.label ?? '');
-  }, [selecionada?.label]);
+    if (value || !aberto) {
+      setConsulta(selecionada?.label ?? '');
+    }
+  }, [value]);
 
   const filtradas = useMemo(() => {
     const busca = normalizar(consulta);
@@ -36,9 +47,39 @@ export default function SelectPesquisavel({
     return options.filter((option) => normalizar(option.label).includes(busca));
   }, [consulta, options, selecionada?.label]);
 
+  const opcoesExibidas = useMemo(() => {
+    const nomeNovo = consulta.trim();
+    const existeOpcaoExata = options.some(
+      (option) => normalizar(option.label) === normalizar(nomeNovo),
+    );
+
+    if (!permitirNovo || !nomeNovo || existeOpcaoExata || selecionada?.novo) {
+      return filtradas;
+    }
+
+    return [
+      ...filtradas,
+      {
+        value: `${PREFIXO_NOVO_ITEM}${nomeNovo}`,
+        label: rotuloNovo(nomeNovo),
+        textoSelecionado: nomeNovo,
+        novo: true,
+      },
+    ];
+  }, [
+    consulta,
+    filtradas,
+    options,
+    permitirNovo,
+    rotuloNovo,
+    selecionada?.novo,
+  ]);
+
   function selecionar(option) {
     onChange(String(option.value));
-    setConsulta(option.label);
+    setConsulta(
+      limparAposSelecionar ? '' : (option.textoSelecionado ?? option.label),
+    );
     setAberto(false);
     setIndiceAtivo(0);
   }
@@ -61,7 +102,7 @@ export default function SelectPesquisavel({
       event.preventDefault();
       setAberto(true);
       setIndiceAtivo((indice) =>
-        Math.min(indice + 1, Math.max(filtradas.length - 1, 0)),
+        Math.min(indice + 1, Math.max(opcoesExibidas.length - 1, 0)),
       );
       return;
     }
@@ -72,9 +113,9 @@ export default function SelectPesquisavel({
       return;
     }
 
-    if (event.key === 'Enter' && aberto && filtradas[indiceAtivo]) {
+    if (event.key === 'Enter' && aberto && opcoesExibidas[indiceAtivo]) {
       event.preventDefault();
-      selecionar(filtradas[indiceAtivo]);
+      selecionar(opcoesExibidas[indiceAtivo]);
     }
   }
 
@@ -112,12 +153,12 @@ export default function SelectPesquisavel({
 
       {aberto && !disabled && (
         <div className={styles.opcoes} id={`${id}-opcoes`} role="listbox">
-          {filtradas.length === 0 ? (
+          {opcoesExibidas.length === 0 ? (
             <p className={styles.vazio}>Nenhum resultado encontrado</p>
           ) : (
-            filtradas.map((option, index) => (
+            opcoesExibidas.map((option, index) => (
               <button
-                className={index === indiceAtivo ? styles.ativa : ''}
+                className={`${index === indiceAtivo ? styles.ativa : ''} ${option.novo ? styles.nova : ''}`}
                 key={option.value}
                 type="button"
                 role="option"
@@ -126,7 +167,18 @@ export default function SelectPesquisavel({
                 onClick={() => selecionar(option)}
                 onMouseEnter={() => setIndiceAtivo(index)}
               >
-                {option.label}
+                <span>{option.label}</span>
+                {option.tipo && (
+                  <span
+                    className={`${styles.tipoOpcao} ${option.tipo === 'SERVICO' ? styles.tipoServico : styles.tipoProduto}`}
+                    title={option.tipo === 'SERVICO' ? 'Serviço' : 'Produto'}
+                    aria-label={
+                      option.tipo === 'SERVICO' ? 'Serviço' : 'Produto'
+                    }
+                  >
+                    {option.tipo === 'SERVICO' ? 'S' : 'P'}
+                  </span>
+                )}
               </button>
             ))
           )}

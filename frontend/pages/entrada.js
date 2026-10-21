@@ -13,10 +13,14 @@ export default function Entrada() {
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [produtosCarregados, fornecedoresCarregados] =
-          await Promise.all([listarProdutos(), listarFornecedores()]);
+        const [produtosCarregados, fornecedoresCarregados] = await Promise.all([
+          listarProdutos(),
+          listarFornecedores(),
+        ]);
 
-        setProdutos(produtosCarregados);
+        setProdutos(
+          produtosCarregados.filter((produto) => produto.tipo !== 'SERVICO'),
+        );
         setFornecedores(fornecedoresCarregados);
       } catch (error) {
         setErroCarregamento(error.message);
@@ -28,9 +32,15 @@ export default function Entrada() {
     carregarDados();
   }, []);
 
-  async function registrarEncomenda({ entidade_id, produtos: itens }) {
+  async function registrarEncomenda({
+    entidade_id,
+    entidade_nome,
+    produtos: itens,
+  }) {
     await criarEncomenda({
-      fornecedor_id: entidade_id,
+      ...(entidade_id
+        ? { fornecedor_id: entidade_id }
+        : { fornecedor_nome: entidade_nome }),
       produtos: itens,
     });
   }
@@ -47,6 +57,9 @@ export default function Entrada() {
       onSubmit={registrarEncomenda}
       carregando={carregando}
       erroCarregamento={erroCarregamento}
+      permitirNovaEntidade
+      selecaoIncremental
+      controlesQuantidade
     />
   );
 }

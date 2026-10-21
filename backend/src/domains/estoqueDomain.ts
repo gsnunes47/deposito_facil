@@ -22,9 +22,7 @@ function formatarItens(
       produto_id: produtoId,
       produto:
         produtosPorId.get(produtoId)?.nome ??
-        (typeof dados.nome === 'string'
-          ? dados.nome
-          : `Produto #${produtoId}`),
+        (typeof dados.nome === 'string' ? dados.nome : `Produto #${produtoId}`),
       quantidade,
       valor_unitario: valorUnitario,
       total_item: quantidade * valorUnitario,
@@ -38,6 +36,7 @@ class EstoqueDomain {
       prisma.produto.findMany({
         where: {
           tenant_id: tenantId,
+          tipo: 'PRODUTO',
         },
         select: {
           id: true,

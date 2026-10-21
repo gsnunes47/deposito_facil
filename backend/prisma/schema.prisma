@@ -14,100 +14,123 @@ enum FormaPagamento {
   CARTAO_DEBITO
 }
 
+enum TipoItem {
+  PRODUTO
+  SERVICO
+}
+
 model Tenants {
-  id Int @id @default(autoincrement())
-  name String @unique
-  created_at DateTime @default(now())
-  users User[]
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  created_at    DateTime      @default(now())
+  users         User[]
+  tipos_despesa TipoDespesa[]
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  created_at DateTime @default(now())
-  name String
-  password String
+  id           Int      @id @default(autoincrement())
+  created_at   DateTime @default(now())
+  name         String
+  password     String
   access_level String
-  tenant_id Int
-  tenant Tenants @relation(fields: [tenant_id], references: [id])
+  tenant_id    Int
+  tenant       Tenants  @relation(fields: [tenant_id], references: [id])
 }
 
 model Despesa {
-  id Int @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   tenant_id Int
   descricao String
-  valor Int
-  data DateTime @default(now())
+  valor     Int
+  data      DateTime     @default(now())
+  tipo_id   Int?
+  tipo      TipoDespesa? @relation(fields: [tipo_id], references: [id], onDelete: SetNull)
+
+  @@index([tipo_id])
+}
+
+model TipoDespesa {
+  id        Int       @id @default(autoincrement())
+  tenant_id Int
+  nome      String
+  tenant    Tenants   @relation(fields: [tenant_id], references: [id], onDelete: Cascade)
+  despesas  Despesa[]
+
+  @@unique([tenant_id, nome])
+  @@index([tenant_id])
 }
 
 model Produto {
-  id Int @id @default(autoincrement())
-  tenant_id Int
-  nome String
-  quantidade Int? @default(0)
+  id           Int      @id @default(autoincrement())
+  tenant_id    Int
+  nome         String
+  quantidade   Int?     @default(0)
+  tipo         TipoItem @default(PRODUTO)
+  preco_padrao Int?
 }
 
 model Cliente {
-  id Int @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   tenant_id Int
-  nome String?
+  nome      String?
   documento String? @default("")
-  vendas Venda[]
+  vendas    Venda[]
 }
 
 model Venda {
-  id Int @id @default(autoincrement())
-  tenant_id Int
-  cliente_id Int
-  produtos Json @db.Json
-  total Int //centavos
-  data DateTime @default(now())
+  id            Int         @id @default(autoincrement())
+  tenant_id     Int
+  cliente_id    Int
+  produtos      Json        @db.Json
+  total         Int //centavos
+  data          DateTime    @default(now())
   data_quitacao DateTime?
-  pago Boolean @default(false)
-  pagamentos Pagamento[]
-  cliente Cliente @relation(fields: [cliente_id], references: [id])
+  pago          Boolean     @default(false)
+  pagamentos    Pagamento[]
+  cliente       Cliente     @relation(fields: [cliente_id], references: [id])
   // produtos deve ser um array de transações:
   // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
 }
 
 model Pagamento {
-  id Int @id @default(autoincrement())
-  tenant_id Int
-  venda_id Int
-  valor Int? @default(1) //centavos
-  data_pagamento DateTime @default(now())
+  id              Int            @id @default(autoincrement())
+  tenant_id       Int
+  venda_id        Int
+  valor           Int?           @default(1) //centavos
+  data_pagamento  DateTime       @default(now())
   forma_pagamento FormaPagamento
-  venda Venda @relation(fields: [venda_id], references: [id])
+  venda           Venda          @relation(fields: [venda_id], references: [id])
 }
 
 model Fornecedor {
-  id Int @id @default(autoincrement())
-  tenant_id Int
-  nome String?
-  documento String? @default("")
+  id         Int         @id @default(autoincrement())
+  tenant_id  Int
+  nome       String?
+  documento  String?     @default("")
   encomendas Encomenda[]
 }
 
 model Encomenda {
-  id Int @id @default(autoincrement())
-  tenant_id Int
+  id            Int                  @id @default(autoincrement())
+  tenant_id     Int
   fornecedor_id Int
-  produtos Json @db.Json
-  total Int //centavos
-  data DateTime @default(now())
+  produtos      Json                 @db.Json
+  total         Int //centavos
+  data          DateTime             @default(now())
   data_quitacao DateTime?
-  pago Boolean @default(false)
-  pagamentos PagamentoEncomenda[]
-  fornecedor Fornecedor @relation(fields: [fornecedor_id], references: [id])
+  pago          Boolean              @default(false)
+  pagamentos    PagamentoEncomenda[]
+  fornecedor    Fornecedor           @relation(fields: [fornecedor_id], references: [id])
   // produtos deve ser um array de transações:
   // [{ produto: "banana prata", quantidade: 10, preco: 50000 }, ...]
 }
 
 model PagamentoEncomenda {
-  id Int @id @default(autoincrement())
-  tenant_id Int
-  encomenda_id Int
-  valor Int? @default(1) //centavos
-  data_pagamento DateTime @default(now())
+  id              Int            @id @default(autoincrement())
+  tenant_id       Int
+  encomenda_id    Int
+  valor           Int?           @default(1) //centavos
+  data_pagamento  DateTime       @default(now())
   forma_pagamento FormaPagamento
-  encomenda Encomenda @relation(fields: [encomenda_id], references: [id])
+  encomenda       Encomenda      @relation(fields: [encomenda_id], references: [id])
 }

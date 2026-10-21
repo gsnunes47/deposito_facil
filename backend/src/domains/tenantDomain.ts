@@ -1,5 +1,6 @@
 import prisma from '../repositories/db.js';
 import bcrypt from 'bcrypt';
+import { TIPOS_DESPESA_INICIAIS } from './tipoDespesaDomain.js';
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -62,6 +63,14 @@ class TenantDomain {
             access_level: 'admin',
             tenant_id: createdTenant.id,
           },
+        });
+
+        await transaction.tipoDespesa.createMany({
+          data: TIPOS_DESPESA_INICIAIS.map((nomeTipo) => ({
+            nome: nomeTipo,
+            tenant_id: createdTenant.id,
+          })),
+          skipDuplicates: true,
         });
 
         return createdTenant;

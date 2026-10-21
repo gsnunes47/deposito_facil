@@ -28,6 +28,18 @@
   gap: 14px;
 }
 
+.seletorItem {
+  margin-bottom: 20px;
+}
+
+.seletorItem > label {
+  display: block;
+  margin-bottom: 6px;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
 .produto {
   display: grid;
   grid-template-columns: minmax(150px, 1fr) 2fr;
@@ -42,10 +54,70 @@
   font-weight: 700;
 }
 
+.identificacaoProduto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.botaoRemoverItem {
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #fecdd3;
+  border-radius: 50%;
+  background: #fff1f2;
+  color: #be123c;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.botaoRemoverItem:hover {
+  border-color: #fda4af;
+  background: #ffe4e6;
+}
+
 .camposProduto {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  align-items: end;
   gap: 12px;
+}
+
+.controleQuantidade {
+  display: grid;
+  grid-template-columns: 38px minmax(60px, 1fr) 38px;
+}
+
+.controleQuantidade input {
+  border-radius: 0;
+  text-align: center;
+}
+
+.controleQuantidade button {
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.controleQuantidade button:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.controleQuantidade button:last-child {
+  border-radius: 0 8px 8px 0;
 }
 
 .camposProduto label,
@@ -157,6 +229,10 @@
   .produto {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .camposProduto {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   }
 
   .nomeProduto {

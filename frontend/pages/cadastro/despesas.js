@@ -6,6 +6,7 @@ import {
   cadastrarDespesa,
   excluirDespesa,
   listarDespesas,
+  listarTiposDespesa,
 } from '../../services/despesaService';
 import { imprimirArea } from '../../services/impressaoService';
 import styles from '../../styles/Despesas.module.css';
@@ -29,6 +30,7 @@ function formularioInicial() {
     descricao: '',
     valor: '',
     data: dataAtual(),
+    tipo_id: '',
   };
 }
 
@@ -42,10 +44,9 @@ function nomeMes(mesSelecionado) {
 
 export default function CadastroDespesas() {
   const [despesas, setDespesas] = useState([]);
+  const [tiposDespesa, setTiposDespesa] = useState([]);
   const [formulario, setFormulario] = useState(formularioInicial);
-  const [mesSelecionado, setMesSelecionado] = useState(
-    dataAtual().slice(0, 7),
-  );
+  const [mesSelecionado, setMesSelecionado] = useState(dataAtual().slice(0, 7));
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState(null);
@@ -54,7 +55,12 @@ export default function CadastroDespesas() {
   async function carregarDespesas() {
     setCarregando(true);
     try {
-      setDespesas(await listarDespesas());
+      const [despesasCarregadas, tiposCarregados] = await Promise.all([
+        listarDespesas(),
+        listarTiposDespesa(),
+      ]);
+      setDespesas(despesasCarregadas);
+      setTiposDespesa(tiposCarregados);
     } catch (error) {
       setMensagem({ tipo: 'erro', texto: error.message });
     } finally {
@@ -93,6 +99,7 @@ export default function CadastroDespesas() {
       descricao: despesa.descricao,
       valor: (Number(despesa.valor) / 100).toFixed(2),
       data: String(despesa.data).slice(0, 10),
+      tipo_id: despesa.tipo_id ?? '',
     });
     setMensagem(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -112,6 +119,7 @@ export default function CadastroDespesas() {
       descricao: formulario.descricao,
       valor: Math.round(Number(formulario.valor) * 100),
       data: formulario.data,
+      tipo_id: formulario.tipo_id || null,
     };
 
     try {
@@ -203,6 +211,22 @@ export default function CadastroDespesas() {
                 autoComplete="off"
                 required
               />
+            </div>
+            <div>
+              <label htmlFor="tipo_id">Tipo</label>
+              <select
+                id="tipo_id"
+                name="tipo_id"
+                value={formulario.tipo_id}
+                onChange={alterarCampo}
+              >
+                <option value="">Sem tipo</option>
+                {tiposDespesa.map((tipo) => (
+                  <option key={tipo.id} value={tipo.id}>
+                    {tipo.nome}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="valor">Valor</label>
@@ -306,6 +330,7 @@ export default function CadastroDespesas() {
                   <tr>
                     <th>Data</th>
                     <th>Descrição</th>
+                    <th>Tipo</th>
                     <th>Valor</th>
                     <th className={styles.colunaAcoes} data-nao-imprimir>
                       Ações
@@ -317,7 +342,10 @@ export default function CadastroDespesas() {
                     <tr key={despesa.id}>
                       <td>{String(despesa.data).slice(8, 10)}</td>
                       <td>{despesa.descricao}</td>
-                      <td>{formatadorMoeda.format(Number(despesa.valor) / 100)}</td>
+                      <td>{despesa.tipo?.nome ?? '—'}</td>
+                      <td>
+                        {formatadorMoeda.format(Number(despesa.valor) / 100)}
+                      </td>
                       <td className={styles.acoesTabela} data-nao-imprimir>
                         <button
                           className={styles.botaoEditar}

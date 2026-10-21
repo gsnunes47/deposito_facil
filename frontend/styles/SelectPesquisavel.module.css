@@ -32,7 +32,10 @@
 
 .opcoes button {
   width: 100%;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 9px 10px;
   border: 0;
   border-radius: 6px;
@@ -43,9 +46,36 @@
   text-align: left;
 }
 
+.tipoOpcao {
+  display: inline-flex;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.tipoProduto {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.tipoServico {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
 .opcoes button:hover,
 .opcoes .ativa {
   background: #edf3f7;
+}
+
+.opcoes .nova {
+  color: #166534;
+  font-weight: 700;
 }
 
 .vazio {

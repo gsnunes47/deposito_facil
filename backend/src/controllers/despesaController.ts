@@ -27,11 +27,23 @@ export async function createDespesa(request: Request, response: Response) {
     });
   }
 
+  const tipoId =
+    request.body.tipo_id == null || request.body.tipo_id === ''
+      ? null
+      : Number(request.body.tipo_id);
+
+  if (tipoId !== null && (!Number.isInteger(tipoId) || tipoId <= 0)) {
+    return response.status(400).send({
+      error: 'Tipo da despesa deve ser um ID válido',
+    });
+  }
+
   const despesa = await despesaDomain.createDespesa(
     Number(request.body.valor),
     request.body.descricao,
     user.tenantId,
     new Date(request.body.data),
+    tipoId,
   );
 
   if (despesa.code === 200) {
@@ -95,19 +107,27 @@ export async function updateDespesa(request: Request, response: Response) {
     });
   }
 
+  const tipoId =
+    request.body.tipo_id === null || request.body.tipo_id === ''
+      ? null
+      : Number(request.body.tipo_id);
+
   const despesaData = {
     id: Number(despesaId),
     descricao: (request.body.descricao as string) || '',
     valor: Number(request.body.valor),
     data: new Date(request.body.data),
     tenant_id: request.user.tenantId,
+    ...(request.body.tipo_id !== undefined && { tipo_id: tipoId }),
   };
 
   if (
     !despesaData.descricao.trim() ||
     !Number.isFinite(despesaData.valor) ||
     despesaData.valor <= 0 ||
-    isNaN(despesaData.data.getTime())
+    isNaN(despesaData.data.getTime()) ||
+    (despesaData.tipo_id != null &&
+      (!Number.isInteger(despesaData.tipo_id) || despesaData.tipo_id <= 0))
   ) {
     return response.status(400).send({
       error: 'Descrição, valor e data válida são obrigatórios',

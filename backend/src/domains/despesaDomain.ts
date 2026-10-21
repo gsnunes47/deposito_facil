@@ -1,5 +1,4 @@
 import prisma from '../repositories/db.js';
-import { getNextTenantId } from '../helpers/globalIdHelper.js';
 
 interface despesaInterface {
   id: number;
@@ -7,6 +6,7 @@ interface despesaInterface {
   descricao: string;
   valor: number;
   data: Date;
+  tipo_id?: number | null;
 }
 
 class DespesaDomain {
@@ -15,14 +15,25 @@ class DespesaDomain {
     descricao: string,
     tenant_id: number,
     data: Date = new Date(),
+    tipo_id: number | null = null,
   ) {
     try {
+      if (tipo_id !== null) {
+        const tipo = await prisma.tipoDespesa.findFirst({
+          where: { id: tipo_id, tenant_id },
+        });
+        if (!tipo) {
+          return { code: 400, message: 'Tipo de despesa não encontrado' };
+        }
+      }
+
       const despesa = await prisma.despesa.create({
         data: {
           tenant_id: tenant_id,
           descricao: descricao,
           valor: valor,
           data,
+          tipo_id,
         },
       });
 
@@ -50,6 +61,10 @@ class DespesaDomain {
         descricao: true,
         valor: true,
         data: true,
+        tipo_id: true,
+        tipo: {
+          select: { id: true, nome: true },
+        },
       },
       orderBy: {
         data: 'desc',
@@ -106,6 +121,15 @@ class DespesaDomain {
       };
     }
 
+    if (despesa.tipo_id != null) {
+      const tipo = await prisma.tipoDespesa.findFirst({
+        where: { id: despesa.tipo_id, tenant_id: despesa.tenant_id },
+      });
+      if (!tipo) {
+        return { code: 400, message: 'Tipo de despesa não encontrado' };
+      }
+    }
+
     const updatedDespesa = await prisma.despesa.update({
       where: {
         id: despesa.id,
@@ -115,6 +139,7 @@ class DespesaDomain {
         descricao: despesa.descricao,
         valor: despesa.valor,
         data: despesa.data,
+        ...(despesa.tipo_id !== undefined && { tipo_id: despesa.tipo_id }),
       },
     });
 

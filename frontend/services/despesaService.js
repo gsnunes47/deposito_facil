@@ -23,3 +23,7 @@ export function excluirDespesa(id) {
     method: 'DELETE',
   });
 }
+
+export function listarTiposDespesa() {
+  return apiRequest('/tipos-despesa');
+}

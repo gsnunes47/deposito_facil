@@ -1,56 +1,95 @@
 import prisma from '../repositories/db.js';
-import produtoDomain from './produtoDomain.js';
-import type { Venda } from '@prisma/client';
 import { obterConfiguracaoComprovante } from '../config/comprovantes.js';
 
-interface clienteInterface {
-  tenant_id: number;
-  documento: any;
-  nome: any;
-  id: number;
+type ClienteVenda = number | { cliente_id?: number; cliente_nome?: string };
+
+class VendaInvalidaError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'VendaInvalidaError';
+  }
 }
 
 class VendaDomain {
   async createVenda(
-    cliente_id: number,
+    cliente: ClienteVenda,
     produtos: any,
     tenant_id: number,
     data?: Date,
   ) {
     try {
-      let total = 0;
+      const venda = await prisma.$transaction(async (transaction) => {
+        const clienteIdInformado =
+          typeof cliente === 'number' ? cliente : cliente.cliente_id;
+        const clienteNome =
+          typeof cliente === 'number'
+            ? undefined
+            : cliente.cliente_nome?.trim();
 
-      for (const produto of produtos) {
-        total += produto.quantidade * produto.valor_unitario;
+        let clienteId: number;
 
-        const produtoDb = await produtoDomain.getProdutoById(
-          produto.id,
-          tenant_id,
-        );
+        if (clienteIdInformado) {
+          const clienteExistente = await transaction.cliente.findFirst({
+            where: { id: clienteIdInformado, tenant_id },
+            select: { id: true },
+          });
 
-        if (!produtoDb) {
-          return {
-            code: 400,
-            message: 'Error creating venda',
-            error: 'Produto inexistente',
-          };
+          if (!clienteExistente) {
+            throw new VendaInvalidaError('Cliente inexistente');
+          }
+
+          clienteId = clienteExistente.id;
+        } else if (clienteNome) {
+          const novoCliente = await transaction.cliente.create({
+            data: {
+              nome: clienteNome,
+              documento: null,
+              tenant_id,
+            },
+          });
+          clienteId = novoCliente.id;
+        } else {
+          throw new VendaInvalidaError('Informe um cliente válido');
         }
 
-        await produtoDomain.updateProduto({
-          id: produto.id,
-          tenant_id: tenant_id,
-          quantidade: (produtoDb.quantidade as number) - produto.quantidade,
-        });
-      }
+        let total = 0;
+        const itensVenda = [];
 
-      const venda = await prisma.venda.create({
-        data: {
-          cliente_id: cliente_id,
-          tenant_id: tenant_id,
-          produtos: produtos,
-          total: total,
-          ...(data && { data }),
-        },
+        for (const item of produtos) {
+          const itemDb = await transaction.produto.findFirst({
+            where: { id: item.id, tenant_id },
+          });
+
+          if (!itemDb) {
+            throw new VendaInvalidaError('Produto ou serviço inexistente');
+          }
+
+          total += item.quantidade * item.valor_unitario;
+          itensVenda.push({
+            id: itemDb.id,
+            nome: itemDb.nome,
+            tipo: itemDb.tipo,
+            quantidade: item.quantidade,
+            valor_unitario: item.valor_unitario,
+          });
+
+          if (itemDb.tipo === 'PRODUTO') {
+            await transaction.produto.update({
+              where: { id: itemDb.id },
+              data: { quantidade: { decrement: item.quantidade } },
+            });
+          }
+        }
+
+        return transaction.venda.create({
+          data: {
+            cliente_id: clienteId,
+            tenant_id,
+            produtos: itensVenda,
+            total,
+            ...(data && { data }),
+          },
+        });
       });
 
       return {

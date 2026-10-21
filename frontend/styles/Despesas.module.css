@@ -41,7 +41,7 @@
 
 .formulario {
   display: grid;
-  grid-template-columns: minmax(240px, 1fr) 160px 170px auto;
+  grid-template-columns: minmax(220px, 1fr) 160px 150px 170px auto;
   align-items: end;
   gap: 16px;
   max-width: none;
@@ -58,6 +58,7 @@
 }
 
 .formulario input,
+.formulario select,
 .navegacaoMes input {
   width: 100%;
   padding: 10px 11px;
@@ -69,6 +70,7 @@
 }
 
 .formulario input:focus,
+.formulario select:focus,
 .navegacaoMes input:focus {
   border-color: #16a34a;
   outline: 3px solid rgba(22, 163, 74, 0.14);

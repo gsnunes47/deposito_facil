@@ -1,46 +1,100 @@
 import prisma from '../repositories/db.js';
-import produtoDomain from './produtoDomain.js';
+
+type FornecedorEncomenda =
+  | number
+  | { fornecedor_id?: number; fornecedor_nome?: string };
+
+class EncomendaInvalidaError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'EncomendaInvalidaError';
+  }
+}
 
 class EncomendaDomain {
   async createEncomenda(
-    fornecedor_id: number,
+    fornecedor: FornecedorEncomenda,
     produtos: any,
     tenant_id: number,
   ) {
     try {
-      let total = 0;
+      const encomenda = await prisma.$transaction(async (transaction) => {
+        const fornecedorIdInformado =
+          typeof fornecedor === 'number'
+            ? fornecedor
+            : fornecedor.fornecedor_id;
+        const fornecedorNome =
+          typeof fornecedor === 'number'
+            ? undefined
+            : fornecedor.fornecedor_nome?.trim();
 
-      for (const produto of produtos) {
-        total += produto.quantidade * produto.valor_unitario;
+        let fornecedorId: number;
 
-        const produtoDb = await produtoDomain.getProdutoById(
-          produto.id,
-          tenant_id,
-        );
+        if (fornecedorIdInformado) {
+          const fornecedorExistente = await transaction.fornecedor.findFirst({
+            where: { id: fornecedorIdInformado, tenant_id },
+            select: { id: true },
+          });
 
-        if (!produtoDb) {
-          return {
-            code: 400,
-            message: 'Error creating encomenda',
-            error: 'Produto inexistente',
-          };
+          if (!fornecedorExistente) {
+            throw new EncomendaInvalidaError('Fornecedor inexistente');
+          }
+
+          fornecedorId = fornecedorExistente.id;
+        } else if (fornecedorNome) {
+          const novoFornecedor = await transaction.fornecedor.create({
+            data: {
+              nome: fornecedorNome,
+              documento: null,
+              tenant_id,
+            },
+          });
+          fornecedorId = novoFornecedor.id;
+        } else {
+          throw new EncomendaInvalidaError('Informe um fornecedor válido');
         }
 
-        await produtoDomain.updateProduto({
-          id: produto.id,
-          tenant_id,
-          nome: produtoDb.nome as string,
-          quantidade: (produtoDb.quantidade as number) + produto.quantidade,
-        });
-      }
+        let total = 0;
+        const itensEncomenda = [];
 
-      const encomenda = await prisma.encomenda.create({
-        data: {
-          fornecedor_id,
-          tenant_id,
-          produtos,
-          total,
-        },
+        for (const item of produtos) {
+          const produtoDb = await transaction.produto.findFirst({
+            where: { id: item.id, tenant_id },
+          });
+
+          if (!produtoDb) {
+            throw new EncomendaInvalidaError('Produto inexistente');
+          }
+
+          if (produtoDb.tipo === 'SERVICO') {
+            throw new EncomendaInvalidaError(
+              'Serviços não podem movimentar estoque',
+            );
+          }
+
+          total += item.quantidade * item.valor_unitario;
+          itensEncomenda.push({
+            id: produtoDb.id,
+            nome: produtoDb.nome,
+            tipo: produtoDb.tipo,
+            quantidade: item.quantidade,
+            valor_unitario: item.valor_unitario,
+          });
+
+          await transaction.produto.update({
+            where: { id: produtoDb.id },
+            data: { quantidade: { increment: item.quantidade } },
+          });
+        }
+
+        return transaction.encomenda.create({
+          data: {
+            fornecedor_id: fornecedorId,
+            tenant_id,
+            produtos: itensEncomenda,
+            total,
+          },
+        });
       });
 
       return {
