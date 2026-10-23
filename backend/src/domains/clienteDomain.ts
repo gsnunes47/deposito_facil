@@ -16,7 +16,6 @@ class ClienteDomain {
     documento?: string | null,
   ) {
     try {
-
       const cliente = await prisma.cliente.create({
         data: {
           nome: name,
@@ -66,26 +65,41 @@ class ClienteDomain {
   }
 
   async deleteCliente(clienteId: number, tenantId: number) {
-    const cliente = await this.getClienteById(clienteId, tenantId);
+    try {
+      return await prisma.$transaction(async (transaction) => {
+        const cliente = await transaction.cliente.findFirst({
+          where: { id: clienteId, tenant_id: tenantId },
+        });
 
-    if (!cliente) {
+        if (!cliente) {
+          return { code: 400, message: 'Cliente não encontrado' };
+        }
+
+        await transaction.pagamento.deleteMany({
+          where: {
+            tenant_id: tenantId,
+            venda: { cliente_id: clienteId, tenant_id: tenantId },
+          },
+        });
+        await transaction.venda.deleteMany({
+          where: { cliente_id: clienteId, tenant_id: tenantId },
+        });
+        await transaction.cliente.delete({
+          where: { id: clienteId, tenant_id: tenantId },
+        });
+
+        return {
+          code: 200,
+          message: `Cliente ${cliente.id} - ${cliente.nome}, suas vendas e pagamentos excluídos com sucesso`,
+        };
+      });
+    } catch (_error) {
       return {
         code: 400,
-        message: 'Cliente não encontrado',
+        message:
+          'Não foi possível excluir o cliente e suas vendas. Nenhuma alteração foi salva.',
       };
     }
-
-    const delCliente = await prisma.cliente.delete({
-      where: {
-        id: clienteId,
-        tenant_id: tenantId,
-      },
-    });
-
-    return {
-      code: 200,
-      message: `Cliente ${delCliente.id} - ${delCliente.nome} deletado com sucesso`,
-    };
   }
 
   async updateCliente(cliente: clienteInterface) {

@@ -24,6 +24,7 @@ export default function CadastroEntidade({
   cadastrar,
   atualizar,
   excluir,
+  obterMensagemExclusao,
   possuiDocumento = true,
   possuiTipo = false,
   possuiPrecoPadrao = false,
@@ -33,6 +34,7 @@ export default function CadastroEntidade({
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState(null);
+  const [excluindoId, setExcluindoId] = useState(null);
   const editando = formulario.id !== null;
   const nomeEntidade = singular.toLowerCase();
 
@@ -116,16 +118,15 @@ export default function CadastroEntidade({
   }
 
   async function removerEntidade(entidade) {
-    if (
-      !window.confirm(
-        `Deseja realmente excluir ${nomeEntidade} "${entidade.nome}"?`,
-      )
-    ) {
-      return;
-    }
-
+    if (excluindoId !== null) return;
+    setExcluindoId(entidade.id);
     setMensagem(null);
     try {
+      const aviso = obterMensagemExclusao
+        ? await obterMensagemExclusao(entidade)
+        : `Deseja realmente excluir ${nomeEntidade} "${entidade.nome}"?`;
+      if (!window.confirm(aviso)) return;
+
       await excluir(entidade.id);
       setMensagem({
         tipo: 'sucesso',
@@ -135,6 +136,8 @@ export default function CadastroEntidade({
       await carregarEntidades();
     } catch (error) {
       setMensagem({ tipo: 'erro', texto: error.message });
+    } finally {
+      setExcluindoId(null);
     }
   }
 
@@ -322,8 +325,9 @@ export default function CadastroEntidade({
                           className={styles.botaoExcluir}
                           type="button"
                           onClick={() => removerEntidade(entidade)}
+                          disabled={excluindoId !== null}
                         >
-                          Excluir
+                          {excluindoId === entidade.id ? 'Verificando...' : 'Excluir'}
                         </button>
                       </td>
                     </tr>

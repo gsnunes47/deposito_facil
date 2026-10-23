@@ -4,6 +4,7 @@ import {
   cadastrarCliente,
   excluirCliente,
   listarClientes,
+  obterMensagemExclusaoCliente,
 } from '../../services/clienteService';
 
 export default function CadastroCliente() {
@@ -16,6 +17,7 @@ export default function CadastroCliente() {
       cadastrar={cadastrarCliente}
       atualizar={atualizarCliente}
       excluir={excluirCliente}
+      obterMensagemExclusao={obterMensagemExclusaoCliente}
     />
   );
 }
