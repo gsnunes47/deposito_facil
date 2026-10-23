@@ -52,10 +52,18 @@ export default function FormularioMovimentacao({
   }, 0);
 
   function alterarProduto(produtoId, campo, valor) {
+    const produto = produtos.find((item) => item.id === produtoId);
     setValores((valoresAtuais) => ({
       ...valoresAtuais,
       [produtoId]: {
         ...valoresAtuais[produtoId],
+        ...(campo === 'quantidade' &&
+        Number(valor) > 0 &&
+        preencherPrecoPadrao &&
+        produto?.preco_padrao != null &&
+        !valoresAtuais[produtoId]?.preco
+          ? { preco: (Number(produto.preco_padrao) / 100).toFixed(2) }
+          : {}),
         [campo]: valor,
       },
     }));
@@ -268,7 +276,7 @@ export default function FormularioMovimentacao({
 
               {selecaoIncremental && produtosExibidos.length === 0 ? (
                 <p className={styles.estado}>
-                  Pesquise e adicione os itens da venda.
+                  Pesquise e adicione os itens da movimentação.
                 </p>
               ) : (
                 <div className={styles.listaProdutos}>
@@ -368,7 +376,7 @@ export default function FormularioMovimentacao({
                               className={styles.botaoRemoverItem}
                               type="button"
                               onClick={() => removerItem(produto.id)}
-                              aria-label={`Retirar ${produto.nome} da venda`}
+                              aria-label={`Retirar ${produto.nome} da movimentação`}
                               title="Retirar item"
                             >
                               ×
@@ -510,7 +518,12 @@ export default function FormularioMovimentacao({
           <button
             className={styles.botaoConfirmar}
             type="submit"
-            disabled={enviando || carregando || produtos.length === 0}
+            disabled={
+              enviando ||
+              carregando ||
+              Boolean(erroCarregamento) ||
+              produtos.length === 0
+            }
           >
             {enviando ? 'Processando...' : textoBotao}
           </button>

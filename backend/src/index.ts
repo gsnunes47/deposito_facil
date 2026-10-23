@@ -17,6 +17,7 @@ import usersRouter from './routing/routers/userRouter.js';
 import tenantRouter from './routing/routers/tenantRouter.js';
 import relatorioRouter from './routing/routers/relatorioRouter.js';
 import estoqueRouter from './routing/routers/estoqueRouter.js';
+import configuracaoRouter from './routing/routers/configuracaoRouter.js';
 import authMiddleware from './routing/middlewares/authMiddleware.js';
 import roleMiddleware from './routing/middlewares/roleMiddleware.js';
 import platformAdminMiddleware from './routing/middlewares/platformAdminMiddleware.js';
@@ -60,6 +61,7 @@ app.use('/fornecedor', fornecedorRouter);
 app.use('/encomenda', encomendaRouter);
 app.use('/relatorios', relatorioRouter);
 app.use('/estoque', estoqueRouter);
+app.use('/configuracoes', configuracaoRouter);
 
 app.listen(PORT, () => {
   console.log(`Rodando na porta: ${PORT}`);

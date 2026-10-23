@@ -3,25 +3,30 @@ import FormularioMovimentacao from '../components/FormularioMovimentacao';
 import { criarEncomenda } from '../services/encomendaService';
 import { listarFornecedores } from '../services/fornecedorService';
 import { listarProdutos } from '../services/produtoService';
+import { obterConfiguracoes } from '../services/configuracaoService';
 
 export default function Entrada() {
   const [produtos, setProdutos] = useState([]);
   const [fornecedores, setFornecedores] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erroCarregamento, setErroCarregamento] = useState(null);
+  const [exibirProdutosEmLista, setExibirProdutosEmLista] = useState(true);
 
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [produtosCarregados, fornecedoresCarregados] = await Promise.all([
-          listarProdutos(),
-          listarFornecedores(),
-        ]);
+        const [produtosCarregados, fornecedoresCarregados, configuracoes] =
+          await Promise.all([
+            listarProdutos(),
+            listarFornecedores(),
+            obterConfiguracoes(),
+          ]);
 
         setProdutos(
           produtosCarregados.filter((produto) => produto.tipo !== 'SERVICO'),
         );
         setFornecedores(fornecedoresCarregados);
+        setExibirProdutosEmLista(configuracoes.listar_produtos);
       } catch (error) {
         setErroCarregamento(error.message);
       } finally {
@@ -58,7 +63,7 @@ export default function Entrada() {
       carregando={carregando}
       erroCarregamento={erroCarregamento}
       permitirNovaEntidade
-      selecaoIncremental
+      selecaoIncremental={!exibirProdutosEmLista}
       controlesQuantidade
     />
   );

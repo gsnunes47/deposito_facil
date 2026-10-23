@@ -5,6 +5,7 @@ import { listarClientes } from '../services/clienteService';
 import { listarProdutos } from '../services/produtoService';
 import { criarVenda } from '../services/vendaService';
 import { imprimirComprovanteVenda } from '../services/impressaoService';
+import { obterConfiguracoes } from '../services/configuracaoService';
 
 const ID_COMPROVANTE = 'comprovante-venda-criada';
 
@@ -14,17 +15,21 @@ export default function Venda() {
   const [carregando, setCarregando] = useState(true);
   const [erroCarregamento, setErroCarregamento] = useState(null);
   const [comprovante, setComprovante] = useState(null);
+  const [exibirProdutosEmLista, setExibirProdutosEmLista] = useState(true);
 
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [produtosCarregados, clientesCarregados] = await Promise.all([
-          listarProdutos(),
-          listarClientes(),
-        ]);
+        const [produtosCarregados, clientesCarregados, configuracoes] =
+          await Promise.all([
+            listarProdutos(),
+            listarClientes(),
+            obterConfiguracoes(),
+          ]);
 
         setProdutos(produtosCarregados);
         setClientes(clientesCarregados);
+        setExibirProdutosEmLista(configuracoes.listar_produtos);
       } catch (error) {
         setErroCarregamento(error.message);
       } finally {
@@ -80,7 +85,7 @@ export default function Venda() {
       erroCarregamento={erroCarregamento}
       exibirData
       permitirNovaEntidade
-      selecaoIncremental
+      selecaoIncremental={!exibirProdutosEmLista}
       controlesQuantidade
       preencherPrecoPadrao
       permitirPagamento

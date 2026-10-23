@@ -91,6 +91,7 @@ const Navbar = () => {
             )}
           </ul>
         </li>
+        <li><Link href="/configuracoes" onClick={fecharMenu}>Configurações</Link></li>
       </ul>
     </nav>
   );

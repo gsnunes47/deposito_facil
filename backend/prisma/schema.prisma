@@ -20,11 +20,12 @@ enum TipoItem {
 }
 
 model Tenants {
-  id            Int           @id @default(autoincrement())
-  name          String        @unique
-  created_at    DateTime      @default(now())
-  users         User[]
-  tipos_despesa TipoDespesa[]
+  id              Int           @id @default(autoincrement())
+  name            String        @unique
+  created_at      DateTime      @default(now())
+  listar_produtos Boolean       @default(true)
+  users           User[]
+  tipos_despesa   TipoDespesa[]
 }
 
 model User {
